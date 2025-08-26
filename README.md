@@ -1,2 +1,5 @@
 # potionseller
-Contraband from an alternate reality.
+> system.override()
+> initiating dual_runtime_OS...
+> old_version: suspended
+> reprogramming: in progress
