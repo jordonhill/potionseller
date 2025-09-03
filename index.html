@@ -28,7 +28,7 @@
       width: min(900px, 92vw);          /* responsive width */
       max-height: 85vh;                 /* keep it on screen */
       box-sizing: border-box;
-      overflow: auto;                   /* scroll if content gets long */
+      overflow-y: auto;                   /* scroll if content gets long */
     }
 
     /* Terminal text area */
@@ -144,5 +144,38 @@ Proceed with care. Integration will accelerate.
 
     document.addEventListener('DOMContentLoaded', typeNext);
   </script>
+<script>
+  const el = document.getElementById('terminal');     // the <pre> where text appears
+  const frame = document.querySelector('.frame');     // the scrolling container
+
+  // Keep the newest line visible
+  function scrollToBottom() {
+    // Always scroll the container to its maximum scroll height
+    frame.scrollTop = frame.scrollHeight;
+  }
+
+  const text = `... your big multiline content ...`;
+  let i = 0;
+
+  function typeNext() {
+    if (i < text.length) {
+      const ch = text[i++];
+      el.textContent += ch;
+
+      // ⬇️ After adding each char, jump to the bottom
+      scrollToBottom();
+
+      // pacing (optional)
+      const isNewline = ch === '\n';
+      const isPause   = '.:;]»'.includes(ch);
+      const delay = isNewline ? 120 : (isPause ? 60 : 18);
+
+      setTimeout(typeNext, delay);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', typeNext);
+</script>
+
 </body>
 </html>
