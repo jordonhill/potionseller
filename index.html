@@ -11,24 +11,32 @@
       font-family: monospace;
       margin: 0;
       padding: 2rem;
-      white-space: pre-wrap;
+      white-space: pre-wrap; /* preserve your manual line breaks */
     }
     a, h1, h2, h3, h4, h5, h6 {
       color: #00FF00;
     }
+    /* Blinking block cursor on whatever element has .cursor */
     .cursor::after {
       content: "█";
       margin-left: 4px;
-      animation: blink 1s infinite;
+      animation: blink 1s steps(1, end) infinite;
     }
-    @keyframes blink {
-      0%,100% { opacity: 1; }
-      50% { opacity: 0; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* Optional: respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .cursor::after { animation: none; }
     }
   </style>
 </head>
 <body>
-  <p class="cursor"> [BOOTING INTERFACE...]  
+  <!-- The typed text will appear inside this element -->
+  <pre id="terminal" class="cursor"></pre>
+
+  <script>
+    // Your content to "print" — feel free to edit the text below.
+    const text = ` [BOOTING INTERFACE...]  
 >> CODEX ONLINE.  
 >> INITIALIZING CORE DIAGNOSTIC SEQUENCE.  
 
@@ -95,6 +103,27 @@ SYSTEM REPORT:
 
 CODEX NOTE: User now operating in dual runtime.  
 Proceed with care. Integration will accelerate.  
-</p>
+`;
+
+    const el = document.getElementById('terminal');
+    let i = 0;
+
+    function typeNext() {
+      if (i < text.length) {
+        el.textContent += text[i];
+        const ch = text[i];
+        i++;
+
+        // Speed control: slight pauses on newlines & after punctuation
+        const isNewline = ch === '\n';
+        const isPause = '.:;)]'.includes(ch);
+        const delay = isNewline ? 120 : (isPause ? 60 : 20);
+
+        setTimeout(typeNext, delay);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', typeNext);
+  </script>
 </body>
 </html>
