@@ -7,7 +7,6 @@
   <style>
     :root { --green:#00FF00; --bg:#000; }
 
-    /* Full-screen black, center the frame */
     html, body { height: 100%; }
     body {
       margin: 0;
@@ -15,32 +14,31 @@
       color: var(--green);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
       display: flex;
-      align-items: center;          /* vertical center */
-      justify-content: center;      /* horizontal center */
-      padding: 1rem;                /* small buffer from viewport edges */
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
       box-sizing: border-box;
     }
 
-    /* The green frame */
+    /* ⬇️ The framed area that will scroll */
     .frame {
-      border: 1px solid var(--green);   /* 1px green line */
-      padding: 1.25rem;                 /* inner buffer so text doesn't touch */
-      width: min(900px, 92vw);          /* responsive width */
-      max-height: 85vh;                 /* keep it on screen */
+      border: 1px solid var(--green);
+      padding: 1.25rem;
+      width: min(900px, 92vw);
+      max-height: 85vh;          /* needed so it has a scrollable height */
       box-sizing: border-box;
-      overflow-y: auto;                   /* scroll if content gets long */
+      overflow-y: auto;          /* enables scrolling */
     }
 
-    /* Terminal text area */
+    /* The terminal text itself */
     #terminal {
-      white-space: pre-wrap;            /* preserve your manual line breaks */
-      margin: 0;                        /* no extra gaps inside frame */
+      white-space: pre-wrap;     /* keeps your line breaks */
+      margin: 0;
     }
 
-    /* Keep all headings/links green if you add any */
     a, h1, h2, h3, h4, h5, h6 { color: var(--green); }
 
-    /* Blinking block cursor on the terminal element */
+    /* Blinking cursor attached to the terminal */
     .cursor::after {
       content: "█";
       margin-left: 4px;
@@ -55,7 +53,18 @@
     <pre id="terminal" class="cursor"></pre>
   </div>
 
+  <!-- ⬇️ Put your script just before </body> -->
   <script>
+    // 1) Grab the elements we need
+    const el = document.getElementById('terminal');      // where text appears
+    const frame = document.querySelector('.frame');      // the scroll container
+
+    // 2) Auto-scroll helper
+    function scrollToBottom() {
+      frame.scrollTop = frame.scrollHeight;
+    }
+
+    // 3) Your content
     const text = ` [BOOTING INTERFACE...]  
 >> CODEX ONLINE.  
 >> INITIALIZING CORE DIAGNOSTIC SEQUENCE.  
@@ -125,13 +134,15 @@ CODEX NOTE: User now operating in dual runtime.
 Proceed with care. Integration will accelerate.  
 `;
 
-    const el = document.getElementById('terminal');
+    // 4) Typewriter loop with pacing and auto-scroll
     let i = 0;
-
     function typeNext() {
       if (i < text.length) {
         const ch = text[i++];
         el.textContent += ch;
+
+        // Always keep the newest line visible
+        scrollToBottom();
 
         // pacing: slower on newlines and punctuation
         const isNewline = ch === '\n';
@@ -144,38 +155,5 @@ Proceed with care. Integration will accelerate.
 
     document.addEventListener('DOMContentLoaded', typeNext);
   </script>
-<script>
-  const el = document.getElementById('terminal');     // the <pre> where text appears
-  const frame = document.querySelector('.frame');     // the scrolling container
-
-  // Keep the newest line visible
-  function scrollToBottom() {
-    // Always scroll the container to its maximum scroll height
-    frame.scrollTop = frame.scrollHeight;
-  }
-
-  const text = `... your big multiline content ...`;
-  let i = 0;
-
-  function typeNext() {
-    if (i < text.length) {
-      const ch = text[i++];
-      el.textContent += ch;
-
-      // ⬇️ After adding each char, jump to the bottom
-      scrollToBottom();
-
-      // pacing (optional)
-      const isNewline = ch === '\n';
-      const isPause   = '.:;]»'.includes(ch);
-      const delay = isNewline ? 120 : (isPause ? 60 : 18);
-
-      setTimeout(typeNext, delay);
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', typeNext);
-</script>
-
 </body>
 </html>
