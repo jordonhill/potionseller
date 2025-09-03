@@ -5,37 +5,57 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Welcome</title>
   <style>
+    :root { --green:#00FF00; --bg:#000; }
+
+    /* Full-screen black, center the frame */
+    html, body { height: 100%; }
     body {
-      background-color: black;
-      color: #00FF00;
-      font-family: monospace;
       margin: 0;
-      padding: 2rem;
-      white-space: pre-wrap; /* preserve your manual line breaks */
+      background: var(--bg);
+      color: var(--green);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      display: flex;
+      align-items: center;          /* vertical center */
+      justify-content: center;      /* horizontal center */
+      padding: 1rem;                /* small buffer from viewport edges */
+      box-sizing: border-box;
     }
-    a, h1, h2, h3, h4, h5, h6 {
-      color: #00FF00;
+
+    /* The green frame */
+    .frame {
+      border: 1px solid var(--green);   /* 1px green line */
+      padding: 1.25rem;                 /* inner buffer so text doesn't touch */
+      width: min(900px, 92vw);          /* responsive width */
+      max-height: 85vh;                 /* keep it on screen */
+      box-sizing: border-box;
+      overflow: auto;                   /* scroll if content gets long */
     }
-    /* Blinking block cursor on whatever element has .cursor */
+
+    /* Terminal text area */
+    #terminal {
+      white-space: pre-wrap;            /* preserve your manual line breaks */
+      margin: 0;                        /* no extra gaps inside frame */
+    }
+
+    /* Keep all headings/links green if you add any */
+    a, h1, h2, h3, h4, h5, h6 { color: var(--green); }
+
+    /* Blinking block cursor on the terminal element */
     .cursor::after {
       content: "█";
       margin-left: 4px;
       animation: blink 1s steps(1, end) infinite;
     }
     @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
-
-    /* Optional: respect reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      .cursor::after { animation: none; }
-    }
+    @media (prefers-reduced-motion: reduce) { .cursor::after { animation: none; } }
   </style>
 </head>
 <body>
-  <!-- The typed text will appear inside this element -->
-  <pre id="terminal" class="cursor"></pre>
+  <div class="frame">
+    <pre id="terminal" class="cursor"></pre>
+  </div>
 
   <script>
-    // Your content to "print" — feel free to edit the text below.
     const text = ` [BOOTING INTERFACE...]  
 >> CODEX ONLINE.  
 >> INITIALIZING CORE DIAGNOSTIC SEQUENCE.  
@@ -110,14 +130,13 @@ Proceed with care. Integration will accelerate.
 
     function typeNext() {
       if (i < text.length) {
-        el.textContent += text[i];
-        const ch = text[i];
-        i++;
+        const ch = text[i++];
+        el.textContent += ch;
 
-        // Speed control: slight pauses on newlines & after punctuation
+        // pacing: slower on newlines and punctuation
         const isNewline = ch === '\n';
-        const isPause = '.:;)]'.includes(ch);
-        const delay = isNewline ? 120 : (isPause ? 60 : 20);
+        const isPause   = '.:;]»'.includes(ch);
+        const delay = isNewline ? 120 : (isPause ? 60 : 18);
 
         setTimeout(typeNext, delay);
       }
