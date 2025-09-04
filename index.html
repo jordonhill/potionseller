@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Welcome</title>
+  <!-- Adobe Argent Pixelated font -->
+  <link rel="stylesheet" href="https://use.typekit.net/pxo3vzp.css">
+
   <style>
     :root { --green:#00FF00; --bg:#000; }
 
@@ -20,7 +23,6 @@
       box-sizing: border-box;
     }
 
-    /* Wrapper stacks header, content, footer vertically */
     .stack {
       display: flex;
       flex-direction: column;
@@ -30,26 +32,44 @@
     /* Header frame */
     .header {
       height: 120px;
-      border: 1px solid var(--green);
+      background: var(--green);   /* filled green */
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      box-sizing: border-box;
+    }
+
+    /* Glyph square */
+    .glyph-box {
+      width: 100px;
+      height: 100px;
+      border: 2px solid black;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-sizing: border-box;
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 90px; /* a bit smaller than frame height */
-      line-height: 1;
-      color: var(--green);
+      margin-right: 1rem;
+      background: transparent;
+      color: black;
+      font-size: 64px;
+      font-weight: bold;
     }
 
-    /* Content frame (terminal) */
+    /* CODEX text */
+    .header-title {
+      font-family: "argent-pixelated", sans-serif; /* Adobe font */
+      font-size: 72px;
+      color: black;
+      margin: 0;
+      line-height: 1;
+    }
+
+    /* Content frame */
     .frame {
       border-left: 1px solid var(--green);
       border-right: 1px solid var(--green);
       border-bottom: 1px solid var(--green);
       padding: 1.25rem;
-      max-height: 65vh;          /* leaves room for header + footer */
+      max-height: 65vh;
       box-sizing: border-box;
       overflow-y: auto;
     }
@@ -68,7 +88,7 @@
       box-sizing: border-box;
     }
 
-    /* Blinking cursor */
+    /* Cursor */
     .cursor::after {
       content: "█";
       margin-left: 4px;
@@ -80,12 +100,13 @@
 </head>
 <body>
   <div class="stack">
-    <!-- Header -->
+    <!-- Header with glyph + text -->
     <div class="header">
-      <h1>CODEX</h1>
+      <div class="glyph-box">O</div>
+      <h1 class="header-title">CODEX</h1>
     </div>
 
-    <!-- Content -->
+    <!-- Terminal frame -->
     <div class="frame">
       <pre id="terminal" class="cursor"></pre>
     </div>
