@@ -28,6 +28,38 @@
       flex-direction: column;
       width: min(900px, 92vw);
     }
+    .window {
+      position: absolute;
+      top: 150px;
+      left: 150px;
+      width: 500px;
+      height: 400px;
+      border: 1px solid #00FF00;
+      background: black;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 10px rgba(0,255,0,0.5);
+      z-index: 10;
+    }
+    
+    .window-header {
+      background: #00FF00;
+      color: black;
+      padding: 6px;
+      cursor: move;
+      font-weight: bold;
+      user-select: none;
+    }
+    
+    .window-body {
+      flex: 1;
+      background: black;
+    }
+    
+    .window-body iframe {
+      width: 100%;
+      height: 100%;
+    }
 
     /* Header frame */
     .header {
@@ -101,6 +133,16 @@
   </style>
 </head>
 <body>
+  <!-- Pop-up window (hidden at start) -->
+  <div class="window" id="win1" style="display:none;">
+    <div class="window-header" id="win1-header">
+      <span>🌐 Ecosia</span>
+    </div>
+    <div class="window-body">
+      <iframe src="https://www.ecosia.org/" frameborder="0"></iframe>
+    </div>
+  </div>
+  
   <div class="stack">
     <!-- Header with glyph + text -->
     <div class="header">
@@ -118,12 +160,13 @@
   </div>
 
   <script>
-    const el = document.getElementById('terminal');
-    const frame = document.querySelector('.frame');
+  const el = document.getElementById('terminal');
+  const frame = document.querySelector('.frame');
+  const win1 = document.getElementById('win1');
 
-    function scrollToBottom() { frame.scrollTop = frame.scrollHeight; }
+  function scrollToBottom() { frame.scrollTop = frame.scrollHeight; }
 
-    const text = ` [BOOTING INTERFACE...]  
+  const text = ` [BOOTING INTERFACE...]  
 >> CODEX ONLINE.  
 >> INITIALIZING CORE DIAGNOSTIC SEQUENCE.  
 
@@ -193,21 +236,72 @@ Proceed with care. Integration will accelerate.
 `;
 
     let i = 0;
-    function typeNext() {
-      if (i < text.length) {
-        const ch = text[i++];
-        el.textContent += ch;
-        scrollToBottom();
+  let typingFinished = false;
+  function typeNext() {
+    if (i < text.length) {
+      const ch = text[i++];
+      el.textContent += ch;
+      scrollToBottom();
 
-        const isNewline = ch === '\n';
-        const isPause   = '.:;]»'.includes(ch);
-        const delay = isNewline ? 120 : (isPause ? 60 : 18);
+      const isNewline = ch === '\n';
+      const isPause   = '.:;]»'.includes(ch);
+      const delay = isNewline ? 120 : (isPause ? 60 : 18);
 
-        setTimeout(typeNext, delay);
-      }
+      setTimeout(typeNext, delay);
+    } else {
+      typingFinished = true;
+      showWindow();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', typeNext);
+
+  // Show window function
+  function showWindow() {
+    win1.style.display = 'flex';
+    makeDraggable("win1");
+  }
+
+  // Allow user to interrupt typing by clicking anywhere
+  document.addEventListener('click', () => {
+    if (!typingFinished) {
+      typingFinished = true;
+      showWindow();
+    }
+  });
+
+  // Dragging logic
+  function makeDraggable(winId) {
+    const win = document.getElementById(winId);
+    const header = document.getElementById(winId + "-header");
+
+    let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0;
+
+    header.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+      e.preventDefault();
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      document.onmouseup = closeDragElement;
+      document.onmousemove = elementDrag;
     }
 
-    document.addEventListener('DOMContentLoaded', typeNext);
-  </script>
+    function elementDrag(e) {
+      e.preventDefault();
+      offsetX = mouseX - e.clientX;
+      offsetY = mouseY - e.clientY;
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      win.style.top = (win.offsetTop - offsetY) + "px";
+      win.style.left = (win.offsetLeft - offsetX) + "px";
+    }
+
+    function closeDragElement() {
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
+  }
+</script>
 </body>
 </html>
