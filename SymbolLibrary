@@ -1,0 +1,234 @@
+import React, { useMemo, useState, useEffect } from "react";
+
+// Single-file React app – no external UI libs. Tailwind classes used for styling.
+// Default export so it can be previewed.
+export default function SymbolReferenceApp() {
+  type Category = "Alchemical" | "Astrological" | "Mathematical" | "Rune" | "Occult";
+
+  type SymbolRow = {
+    char: string;
+    name: string;
+    meaning: string;
+    category: Category;
+    keywords?: string[];
+  };
+
+  const SYMBOLS: SymbolRow[] = [
+    // Alchemical (Unicode block U+1F700 has many; some fonts may vary)
+    { char: "🜂", name: "Fire", meaning: "Element of fire; transformation, heat, energy.", category: "Alchemical", keywords: ["element", "triangle up"] },
+    { char: "🜄", name: "Water", meaning: "Element of water; dissolution, flow, emotion.", category: "Alchemical", keywords: ["element", "triangle down"] },
+    { char: "🜁", name: "Air", meaning: "Element of air; separation, intellect, breath.", category: "Alchemical" },
+    { char: "🜃", name: "Earth", meaning: "Element of earth; coagulation, stability, matter.", category: "Alchemical" },
+    { char: "🜔", name: "Sal Ammoniac", meaning: "Ammonium chloride; fixation and purification work.", category: "Alchemical" },
+    { char: "🜍", name: "Aqua Fortis", meaning: "Nitric acid; powerful corrosive solvent.", category: "Alchemical" },
+    { char: "🜛", name: "Vinegar", meaning: "Acetum; sour solvent used in extractions.", category: "Alchemical" },
+    { char: "🜚", name: "Vitriol", meaning: "Vitriol (sulfates); emblem of the Great Work.", category: "Alchemical" },
+
+    // Astrological
+    { char: "☉", name: "Sun", meaning: "Core self, vitality, identity.", category: "Astrological" },
+    { char: "☽", name: "Moon", meaning: "Emotion, body, rhythms, reflection.", category: "Astrological" },
+    { char: "☿", name: "Mercury", meaning: "Communication, trade, analysis.", category: "Astrological" },
+    { char: "♀", name: "Venus", meaning: "Attraction, aesthetics, values.", category: "Astrological" },
+    { char: "♂", name: "Mars", meaning: "Drive, assertion, heat.", category: "Astrological" },
+    { char: "♃", name: "Jupiter", meaning: "Expansion, faith, opportunity.", category: "Astrological" },
+    { char: "♄", name: "Saturn", meaning: "Structure, limits, time.", category: "Astrological" },
+    { char: "♅", name: "Uranus", meaning: "Shock, invention, liberation.", category: "Astrological" },
+    { char: "♆", name: "Neptune", meaning: "Dreams, dissolution, mysticism.", category: "Astrological" },
+    { char: "♇", name: "Pluto", meaning: "Underworld, power, rebirth.", category: "Astrological" },
+    { char: "♈", name: "Aries", meaning: "Cardinal fire sign; initiative.", category: "Astrological" },
+    { char: "♎", name: "Libra", meaning: "Cardinal air sign; balance.", category: "Astrological" },
+    { char: "☌", name: "Conjunction", meaning: "Planets aligned in the same degree.", category: "Astrological" },
+    { char: "☍", name: "Opposition", meaning: "Planets 180° apart.", category: "Astrological" },
+
+    // Mathematical
+    { char: "∞", name: "Infinity", meaning: "Unbounded quantity; limit behavior.", category: "Mathematical" },
+    { char: "∑", name: "Summation", meaning: "Sigma notation for sums.", category: "Mathematical" },
+    { char: "∏", name: "Product", meaning: "Capital pi; product of terms.", category: "Mathematical" },
+    { char: "√", name: "Square Root", meaning: "Principal square root.", category: "Mathematical" },
+    { char: "≈", name: "Approximately Equal", meaning: "Approximate equality.", category: "Mathematical" },
+    { char: "≠", name: "Not Equal", meaning: "Inequality relation.", category: "Mathematical" },
+    { char: "≤", name: "Less or Equal", meaning: "Inequality bound.", category: "Mathematical" },
+    { char: "≥", name: "Greater or Equal", meaning: "Inequality bound.", category: "Mathematical" },
+    { char: "∀", name: "For All", meaning: "Universal quantifier.", category: "Mathematical" },
+    { char: "∃", name: "There Exists", meaning: "Existential quantifier.", category: "Mathematical" },
+    { char: "∈", name: "Element Of", meaning: "Set membership.", category: "Mathematical" },
+    { char: "∉", name: "Not An Element", meaning: "Non-membership.", category: "Mathematical" },
+
+    // Runes (Elder Futhark)
+    { char: "ᚠ", name: "Fehu", meaning: "Wealth, cattle, mobile resources.", category: "Rune" },
+    { char: "ᚢ", name: "Uruz", meaning: "Strength, vitality, raw power.", category: "Rune" },
+    { char: "ᚦ", name: "Thurisaz", meaning: "Thorn, giant, catalytic force.", category: "Rune" },
+    { char: "ᚨ", name: "Ansuz", meaning: "Breath, inspiration, Odin.", category: "Rune" },
+    { char: "ᚱ", name: "Raidho", meaning: "Journey, motion, rhythm.", category: "Rune" },
+    { char: "ᚹ", name: "Wunjo", meaning: "Joy, harmony, fellowship.", category: "Rune" },
+    { char: "ᛉ", name: "Algiz", meaning: "Protection, elk, sanctuary.", category: "Rune" },
+    { char: "ᛟ", name: "Othala", meaning: "Ancestral land, inheritance.", category: "Rune" },
+
+    // Occult / Magickal
+    { char: "⛤", name: "Pentagram", meaning: "Five-pointed star; protection, elements.", category: "Occult" },
+    { char: "✡", name: "Hexagram", meaning: "Six-pointed star; union of opposites.", category: "Occult" },
+    { char: "☥", name: "Ankh", meaning: "Egyptian key of life; vitality.", category: "Occult" },
+    { char: "☤", name: "Caduceus", meaning: "Hermes’ staff; mediation, exchange.", category: "Occult" },
+    { char: "✴", name: "Star of Lakshmi", meaning: "Eightfold wealth and virtues.", category: "Occult" },
+    { char: "🔱", name: "Trident Emblem", meaning: "Power of the sea; sovereignty.", category: "Occult" },
+  ];
+
+  const ALL_CATEGORIES: Category[] = ["Alchemical", "Astrological", "Mathematical", "Rune", "Occult"];
+
+  const [query, setQuery] = useState("");
+  const [activeCats, setActiveCats] = useState<Category[]>(ALL_CATEGORIES);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!copied) return;
+    const t = setTimeout(() => setCopied(null), 1200);
+    return () => clearTimeout(t);
+  }, [copied]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return SYMBOLS.filter((s) =>
+      activeCats.includes(s.category) &&
+      (
+        q.length === 0 ||
+        s.name.toLowerCase().includes(q) ||
+        s.meaning.toLowerCase().includes(q) ||
+        s.keywords?.some((k) => k.toLowerCase().includes(q))
+      )
+    );
+  }, [query, activeCats]);
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(text);
+    } catch (err) {
+      // Fallback if clipboard API is not available
+      const ok = window.prompt("Copy this symbol and press Enter:", text);
+      if (ok !== null) setCopied(text);
+    }
+  };
+
+  const toggleCategory = (cat: Category) => {
+    setActiveCats((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+    );
+  };
+
+  const selectOnly = (cat: Category) => setActiveCats([cat]);
+  const selectAll = () => setActiveCats(ALL_CATEGORIES);
+  const clearAll = () => setActiveCats([]);
+
+  return (
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-gray-200">
+        <div className="mx-auto max-w-6xl px-4 py-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Symbol Reference</h1>
+            <p className="text-sm text-gray-600">Browse, filter, and copy alchemical, astrological, mathematical, rune, and occult symbols.</p>
+          </div>
+          <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+            <div className="relative w-full md:w-80">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search name, meaning, or keyword…"
+                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                aria-label="Search symbols"
+              />
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">🔎</span>
+            </div>
+            <div className="flex gap-2 items-center">
+              <button onClick={selectAll} className="rounded-xl border px-3 py-2 text-sm shadow-sm hover:bg-gray-100">All</button>
+              <button onClick={clearAll} className="rounded-xl border px-3 py-2 text-sm shadow-sm hover:bg-gray-100">None</button>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {ALL_CATEGORIES.map((cat) => {
+              const active = activeCats.includes(cat);
+              return (
+                <button
+                  key={cat}
+                  onClick={() => toggleCategory(cat)}
+                  onDoubleClick={() => selectOnly(cat)}
+                  className={`rounded-full px-3 py-1.5 text-sm border shadow-sm ${
+                    active ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"
+                  }`}
+                  aria-pressed={active}
+                  title={`Toggle ${cat} (double‑click: only ${cat})`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-6xl px-4 py-6">
+        <div className="mb-3 text-sm text-gray-600">Showing <span className="font-medium">{filtered.length}</span> of {SYMBOLS.length} symbols</div>
+
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <table className="w-full table-fixed">
+            <thead className="bg-gray-50 text-left text-sm text-gray-600">
+              <tr>
+                <th className="w-24 px-4 py-3">Copy</th>
+                <th className="w-28 px-4 py-3">Symbol</th>
+                <th className="px-4 py-3">Name & Explanation</th>
+                <th className="w-40 px-4 py-3">Category</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filtered.map((s, idx) => (
+                <tr key={`${s.char}-${idx}`} className="hover:bg-gray-50/80">
+                  <td className="px-4 py-2">
+                    <button
+                      onClick={() => copyToClipboard(s.char)}
+                      className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm shadow-sm hover:bg-gray-100 active:scale-[.98]"
+                      aria-label={`Copy ${s.name} symbol`}
+                    >
+                      Copy
+                    </button>
+                  </td>
+                  <td className="px-4 py-2 text-3xl select-all" style={{fontFamily: "system-ui, ui-sans-serif, 'Segoe UI Symbol', 'Noto Sans Symbols', 'Apple Color Emoji', 'Segoe UI Emoji'"}}>
+                    {s.char}
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="font-medium">{s.name}</div>
+                    <div className="text-sm text-gray-600">{s.meaning}</div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <span className="inline-flex items-center rounded-full border border-gray-300 px-2.5 py-0.5 text-xs">{s.category}</span>
+                  </td>
+                </tr>
+              ))}
+
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-4 py-10 text-center text-sm text-gray-500">No symbols match your filters. Try widening your selection or clearing the search.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </main>
+
+      {/* Tiny toast */}
+      <div
+        className={`pointer-events-none fixed inset-x-0 bottom-6 flex justify-center transition-opacity ${copied ? "opacity-100" : "opacity-0"}`}
+        aria-live="polite"
+      >
+        <div className="rounded-full bg-gray-900 text-white text-sm px-4 py-2 shadow-lg">
+          {copied ? `Copied: ${copied}` : ""}
+        </div>
+      </div>
+
+      <footer className="mx-auto max-w-6xl px-4 py-8 text-xs text-gray-500">
+        <p>
+          Tips: Click <span className="font-medium">Copy</span> to copy a symbol. Use the category chips to filter; double‑click a chip to select only that category. Search checks names, explanations, and keywords.
+        </p>
+      </footer>
+    </div>
+  );
+}
