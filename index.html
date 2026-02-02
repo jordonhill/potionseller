@@ -130,18 +130,58 @@
     }
     @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .cursor::after { animation: none; } }
+
+    /* Window manager layer */
+#windows {
+  position: fixed;
+  inset: 0;
+  pointer-events: none; /* windows themselves re-enable */
+  z-index: 50;
+}
+
+.window {
+  pointer-events: auto;
+}
+
+.window-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.window-actions button {
+  font-family: inherit;
+  border: 1px solid black;
+  background: black;
+  color: #00FF00;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.window-actions button:hover { filter: brightness(1.2); }
+
+/* Blog editor */
+.blog-editor {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #00FF00;
+  background: #000;
+  color: #00FF00;
+  padding: 12px;
+  box-sizing: border-box;
+  font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+  resize: none;
+  outline: none;
+  white-space: pre-wrap;
+}
+
   </style>
 </head>
 <body>
-  <!-- Pop-up window (hidden at start) -->
-  <div class="window" id="win1" style="display:none;">
-    <div class="window-header" id="win1-header">
-      <span>🌐 Ecosia</span>
-    </div>
-    <div class="window-body">
-      <iframe src="https://www.ecosia.org/" frameborder="0"></iframe>
-    </div>
-  </div>
+  <!-- Window manager container -->
+<div id="windows"></div>
   
   <div class="stack">
     <!-- Header with glyph + text -->
@@ -162,10 +202,163 @@
   <script>
   const el = document.getElementById('terminal');
   const frame = document.querySelector('.frame');
-  const win1 = document.getElementById('win1');
+  const windowsRoot = document.getElementById('windows');
 
   function scrollToBottom() { frame.scrollTop = frame.scrollHeight; }
 
+  // -----------------------------
+  // WINDOW MANAGER (modular)
+  // -----------------------------
+  const WindowManager = (() => {
+    let z = 100; // stacking order
+
+    function createWindow({
+      id,
+      title = "Window",
+      x = 150,
+      y = 150,
+      width = 520,
+      height = 420,
+      bodyHTML = "",
+      onMount = null, // hook after DOM created
+      startHidden = false
+    }) {
+      // If same id exists, bring to front and return it
+      const existing = document.getElementById(id);
+      if (existing) {
+        focus(existing);
+        existing.style.display = 'flex';
+        return existing;
+      }
+
+      const win = document.createElement('div');
+      win.className = 'window';
+      win.id = id;
+      win.style.position = 'absolute';
+      win.style.top = y + 'px';
+      win.style.left = x + 'px';
+      win.style.width = width + 'px';
+      win.style.height = height + 'px';
+      win.style.display = startHidden ? 'none' : 'flex';
+
+      win.innerHTML = `
+        <div class="window-header" id="${id}-header">
+          <span>${title}</span>
+          <div class="window-actions">
+            <button type="button" data-action="clear">CLEAR</button>
+            <button type="button" data-action="close">X</button>
+          </div>
+        </div>
+        <div class="window-body">${bodyHTML}</div>
+      `;
+
+      windowsRoot.appendChild(win);
+
+      // Bring to front on interaction
+      win.addEventListener('mousedown', () => focus(win));
+
+      // Draggable
+      makeDraggable(win, win.querySelector(`#${id}-header`));
+
+      // Close button
+      win.querySelector('[data-action="close"]').addEventListener('click', () => {
+        win.remove();
+      });
+
+      // Optional mount hook (attach editor logic etc.)
+      if (typeof onMount === 'function') onMount(win);
+
+      // default focus
+      focus(win);
+
+      return win;
+    }
+
+    function focus(win) {
+      z += 1;
+      win.style.zIndex = z;
+    }
+
+    function makeDraggable(win, header) {
+      let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0;
+
+      header.onmousedown = dragMouseDown;
+
+      function dragMouseDown(e) {
+        e.preventDefault();
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+      }
+
+      function elementDrag(e) {
+        e.preventDefault();
+        offsetX = mouseX - e.clientX;
+        offsetY = mouseY - e.clientY;
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        win.style.top = (win.offsetTop - offsetY) + "px";
+        win.style.left = (win.offsetLeft - offsetX) + "px";
+      }
+
+      function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+      }
+    }
+
+    return { createWindow, focus };
+  })();
+
+  // -----------------------------
+  // BLOG WINDOW TEMPLATE
+  // -----------------------------
+  function addBlogWindow({
+    id,
+    title = "📝 Blog",
+    x = 150,
+    y = 150,
+    width = 520,
+    height = 420,
+    defaultText = `# Field Notes\n\nStart typing…\n`,
+  }) {
+    const storageKey = `codex_blog_${id}`;
+
+    return WindowManager.createWindow({
+      id,
+      title,
+      x, y, width, height,
+      bodyHTML: `<textarea class="blog-editor" id="${id}-editor" spellcheck="true"></textarea>`,
+      onMount: (win) => {
+        const editor = win.querySelector(`#${id}-editor`);
+        const clearBtn = win.querySelector('[data-action="clear"]');
+
+        // load
+        editor.value = localStorage.getItem(storageKey) ?? defaultText;
+
+        // save
+        editor.addEventListener('input', () => {
+          localStorage.setItem(storageKey, editor.value);
+        });
+
+        // clear
+        clearBtn.addEventListener('click', () => {
+          if (confirm("Clear this blog entry?")) {
+            editor.value = "";
+            localStorage.setItem(storageKey, "");
+          }
+        });
+      }
+    });
+  }
+
+  // Expose helper so you can add more later (DevTools or buttons)
+  window.addBlogWindow = addBlogWindow;
+
+  // -----------------------------
+  // YOUR EXISTING TERMINAL TEXT
+  // -----------------------------
   const text = ` [BOOTING INTERFACE...]  
 >> CODEX ONLINE.  
 >> INITIALIZING CORE DIAGNOSTIC SEQUENCE.  
@@ -235,8 +428,39 @@ CODEX NOTE: User now operating in dual runtime.
 Proceed with care. Integration will accelerate.  
 `;
 
-    let i = 0;
+  let i = 0;
   let typingFinished = false;
+
+  function showInitialWindows() {
+    // 1st blog entry window
+    addBlogWindow({
+      id: "blog1",
+      title: "📝 Blog Entry 01",
+      x: 150, y: 150,
+      defaultText:
+`# Entry 01
+
+Fuck the system.
+
+Maybe its about time we did. Let’s fuck with. Techno feudalism is lording over us, as capitalism starts to wain, tech lords in their castles mine your energy and your souls. Stressed, anxious, addicted, they prey on you for their own ends. To what? Make money? Sell stuff. What a load of shit.
+
+Lets turn the system on itself. In this techno-feudal world, pay attention to the only thing that matters. Your self. A better you = a better world. Feel helpless, do something about it. The only thing you have control over is —SHOCK — yourself. Start there. Live your life for you. 
+
+Know what I see. The chance for adventure. AI will automate everything, there won’t be jobs. You won’t have to work. “What about purpose” you cry. You worry about purpose without a job. Boo-hoo. Are you that weak that a job is the only thing that gives you meaning? Give your self meaning. Get out there, discover, travel. 
+
+Freedom is staring at us in the face. What are you gonna do with it. Continue to scroll on your phone? Pathetic. Get a life. Actually—you’ve got one. Do something. Actually do something with more than just your thumb staring cross eyed at a piece of glass blaring light at you. The phone is your master. You are chained and controlled by it. By those that control it. Whose your daddy? Mark Zuckerberg? You’re gonna let that guy control you, let the algorithm control you? Just stop. Turn it off. If you’d rather be addicted to techno-dick. Suck away.
+
+Or get off off your knees and do something with yourself. Find yourself, find others, find things. Discover your self. Actually live.
+
+I’m going that way.
+See you there.
+`
+    });
+
+    // Example: a second window you can turn on later
+    // addBlogWindow({ id:"blog2", title:"📝 Blog Entry 02", x:220, y:200 });
+  }
+
   function typeNext() {
     if (i < text.length) {
       const ch = text[i++];
@@ -250,58 +474,22 @@ Proceed with care. Integration will accelerate.
       setTimeout(typeNext, delay);
     } else {
       typingFinished = true;
-      showWindow();
+      showInitialWindows();
     }
   }
 
   document.addEventListener('DOMContentLoaded', typeNext);
 
-  // Show window function
-  function showWindow() {
-    win1.style.display = 'flex';
-    makeDraggable("win1");
-  }
-
-  // Allow user to interrupt typing by clicking anywhere
+  // Click to skip typing and open the blog window immediately
   document.addEventListener('click', () => {
     if (!typingFinished) {
       typingFinished = true;
-      showWindow();
+      el.textContent = text;
+      scrollToBottom();
+      showInitialWindows();
     }
   });
-
-  // Dragging logic
-  function makeDraggable(winId) {
-    const win = document.getElementById(winId);
-    const header = document.getElementById(winId + "-header");
-
-    let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0;
-
-    header.onmousedown = dragMouseDown;
-
-    function dragMouseDown(e) {
-      e.preventDefault();
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      document.onmouseup = closeDragElement;
-      document.onmousemove = elementDrag;
-    }
-
-    function elementDrag(e) {
-      e.preventDefault();
-      offsetX = mouseX - e.clientX;
-      offsetY = mouseY - e.clientY;
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      win.style.top = (win.offsetTop - offsetY) + "px";
-      win.style.left = (win.offsetLeft - offsetX) + "px";
-    }
-
-    function closeDragElement() {
-      document.onmouseup = null;
-      document.onmousemove = null;
-    }
-  }
 </script>
+
 </body>
 </html>
