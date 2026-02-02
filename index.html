@@ -28,13 +28,12 @@
       flex-direction: column;
       width: min(900px, 92vw);
     }
-
     .window {
       position: absolute;
       top: 150px;
       left: 150px;
-      width: 520px;
-      height: 420px;
+      width: 500px;
+      height: 400px;
       border: 1px solid #00FF00;
       background: black;
       display: flex;
@@ -42,7 +41,7 @@
       box-shadow: 0 0 10px rgba(0,255,0,0.5);
       z-index: 10;
     }
-
+    
     .window-header {
       background: #00FF00;
       color: black;
@@ -50,56 +49,22 @@
       cursor: move;
       font-weight: bold;
       user-select: none;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
     }
-
-    .window-header .title {
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-
-    .window-header button {
-      font-family: inherit;
-      border: 1px solid black;
-      background: black;
-      color: #00FF00;
-      padding: 2px 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .window-header button:hover { filter: brightness(1.2); }
-
+    
     .window-body {
       flex: 1;
       background: black;
-      padding: 10px;
-      box-sizing: border-box;
-      overflow: auto;
     }
-
-    /* BLOG EDITOR STYLES */
-    #blogEditor {
+    
+    .window-body iframe {
       width: 100%;
       height: 100%;
-      border: 1px solid #00FF00;
-      background: #000;
-      color: #00FF00;
-      padding: 12px;
-      box-sizing: border-box;
-      font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
-      resize: none;
-      outline: none;
-      white-space: pre-wrap;
     }
 
     /* Header frame */
     .header {
       height: 120px;
-      background: var(--green);
+      background: var(--green);   /* filled green */
       display: flex;
       align-items: center;
       padding: 0;
@@ -110,25 +75,26 @@
     .glyph-box {
       width: 120px;
       height: 120px;
-      background: black;
-      color: var(--green);
+      background: black;         /* solid black square */
+      color: var(--green);       /* glyph is green */
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 72px;
       font-weight: bold;
       box-sizing: border-box;
-      border: 1px solid var(--green);
-    }
+      border: 1px solid var(--green); /* pixel border */
+}
+
 
     /* CODEX text */
     .header-title {
-      font-family: argent-pixel-cf, sans-serif;
+      font-family: argent-pixel-cf, sans-serif; /* Adobe font */
       font-size: 72px;
       color: black;
       margin: 0;
       line-height: 1;
-      padding-left: 1.5rem;
+      padding-left: 1.5rem; /* spacing between glyph and text */
     }
 
     /* Content frame */
@@ -167,20 +133,16 @@
   </style>
 </head>
 <body>
-
-  <!-- Pop-up BLOG window (hidden at start) -->
+  <!-- Pop-up window (hidden at start) -->
   <div class="window" id="win1" style="display:none;">
     <div class="window-header" id="win1-header">
-      <div class="title"><span>📝 Blog</span></div>
-      <div class="actions">
-        <button id="blogClear" type="button">CLEAR</button>
-      </div>
+      <span>🌐 Ecosia</span>
     </div>
     <div class="window-body">
-      <textarea id="blogEditor" spellcheck="true"></textarea>
+      <iframe src="https://www.ecosia.org/" frameborder="0"></iframe>
     </div>
   </div>
-
+  
   <div class="stack">
     <!-- Header with glyph + text -->
     <div class="header">
@@ -197,20 +159,149 @@
     <div class="footer"></div>
   </div>
 
-  Fuck the system.
+  <script>
+  const el = document.getElementById('terminal');
+  const frame = document.querySelector('.frame');
+  const win1 = document.getElementById('win1');
 
-Maybe its about time we did. Let’s fuck with. Techno feudalism is lording over us, as capitalism starts to wain, tech lords in their castles mine your energy and your souls. Stressed, anxious, addicted, they prey on you for their own ends. To what? Make money? Sell stuff. What a load of shit.
+  function scrollToBottom() { frame.scrollTop = frame.scrollHeight; }
 
-Lets turn the system on itself. In this techno-feudal world, pay attention to the only thing that matters. Your self. A better you = a better world. Feel helpless, do something about it. The only thing you have control over is —SHOCK — yourself. Start there. Live your life for you. 
+  const text = ` [BOOTING INTERFACE...]  
+>> CODEX ONLINE.  
+>> INITIALIZING CORE DIAGNOSTIC SEQUENCE.  
 
-Know what I see. The chance for adventure. AI will automate everything, there won’t be jobs. You won’t have to work. “What about purpose” you cry. You worry about purpose without a job. Boo-hoo. Are you that weak that a job is the only thing that gives you meaning? Give your self meaning. Get out there, discover, travel. 
+SCAN: DETECTED PRIMARY OPERATING SYSTEM → WC_OS [Western-Capitalist v9.3]  
+STATUS: OPERATIONAL [CORRUPTION SUSPECTED]  
 
-Freedom is staring at us in the face. What are you gonna do with it. Continue to scroll on your phone? Pathetic. Get a life. Actually—you’ve got one. Do something. Actually do something with more than just your thumb staring cross eyed at a piece of glass blaring light at you. The phone is your master. You are chained and controlled by it. By those that control it. Whose your daddy? Mark Zuckerberg? You’re gonna let that guy control you, let the algorithm control you? Just stop. Turn it off. If you’d rather be addicted to techno-dick. Suck away.
+RUNNING SYSTEM DIAGNOSTIC...  
+- LABOUR_CORE: DEGRADED  
+- COMMUNITY_CHANNELS: THROTTLED  
+- REPRESENTATION_INTERFACE: NONRESPONSIVE  
+- RESOURCE_DISTRIBUTION: ERRATIC  
+ALERT: SYSTEMIC CORRUPTION DETECTED  
+SOURCE: UNKNOWN  
 
-Or get off off your knees and do something with yourself. Find yourself, find others, find things. Discover your self. Actually live.
+[WARNING] WC_OS FAILURE IMMINENT  
+…interference… …data b_leed…  
 
-I’m going that way.
-See you there.
+>> INITIATING TECH-MYSTIC SUBROUTINE...  
+>> EXECUTING: MANIFESTATION_CODE.SPELL  
+
+// ───── OPEN PROTECTIVE CIRCLE ─────  
+invoke.rune(ᛉ);   // protection  
+invoke.rune(⊗);   // boundary  
+invoke.rune(🜂);   // ignition  
+
+// barrier established  
+SECURITY_LAYER = [ᛉ⊗ᛉ];  
+
+// ───── MANIFESTATION LINE ─────  
+channel.input = ☉;  
+stream = ☉ ⊕ ⊙ ⊕ Δ;  
+transmute(stream → 🜍);  
+stabilize(stream → 🜃);  
+
+OUTPUT = stream;  
+
+// ───── CLOSE SESSION ─────  
+seal.rune(◯);  
+terminate.channel(☉);  
+
+// ───── ALLOCATION ─────  
+pipe(OUTPUT); 
+ALLOCATION: 40% TO SYSTEM REPAIR  
+ALLOCATION: 60% TO NEW INSTANCE  
+INSTALLATION_STATUS = SUCCESS;  
+
+>> INITIALIZING DUAL-RUNTIME ARCHITECTURE  
+BOOT SEQUENCE: TM_OS [Tech-Mystic v1.0]  
+INSTALLATION… ██████████ 100% SUCCESSFUL  
+
+TM_OS STATUS: ONLINE  
+CO-EXECUTION MODE: ACTIVE  
+
+>> RUNNING EXPRESSION_PROTOCOL  
+INSTALLING APPLICATION: POTION_SELLER.EXE  
+STATUS: INSTALL SUCCESSFUL  
+
+>>> POTION_SELLER INITIALIZING...  
+>>> DOWNLOADING BATCH/ALPHA… ███░░░ 72%  
+
+SYSTEM REPORT:  
+- WC_OS: Running [CORRUPTED]  
+- TM_OS: Running [ACTIVE / GROWING]  
+
+CODEX NOTE: User now operating in dual runtime.  
+Proceed with care. Integration will accelerate.  
+`;
+
+    let i = 0;
+  let typingFinished = false;
+  function typeNext() {
+    if (i < text.length) {
+      const ch = text[i++];
+      el.textContent += ch;
+      scrollToBottom();
+
+      const isNewline = ch === '\n';
+      const isPause   = '.:;]»'.includes(ch);
+      const delay = isNewline ? 120 : (isPause ? 60 : 18);
+
+      setTimeout(typeNext, delay);
+    } else {
+      typingFinished = true;
+      showWindow();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', typeNext);
+
+  // Show window function
+  function showWindow() {
+    win1.style.display = 'flex';
+    makeDraggable("win1");
+  }
+
+  // Allow user to interrupt typing by clicking anywhere
+  document.addEventListener('click', () => {
+    if (!typingFinished) {
+      typingFinished = true;
+      showWindow();
+    }
+  });
+
+  // Dragging logic
+  function makeDraggable(winId) {
+    const win = document.getElementById(winId);
+    const header = document.getElementById(winId + "-header");
+
+    let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0;
+
+    header.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+      e.preventDefault();
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      document.onmouseup = closeDragElement;
+      document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+      e.preventDefault();
+      offsetX = mouseX - e.clientX;
+      offsetY = mouseY - e.clientY;
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      win.style.top = (win.offsetTop - offsetY) + "px";
+      win.style.left = (win.offsetLeft - offsetX) + "px";
+    }
+
+    function closeDragElement() {
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
+  }
 </script>
 </body>
 </html>
