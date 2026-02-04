@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Welcome</title>
+
   <!-- Adobe Argent Pixelated font -->
   <link rel="stylesheet" href="https://use.typekit.net/pxo3vzp.css">
 
@@ -21,50 +22,21 @@
       justify-content: center;
       padding: 1rem;
       box-sizing: border-box;
+      overflow: hidden; /* important once we have floating windows */
     }
 
     .stack {
       display: flex;
       flex-direction: column;
       width: min(900px, 92vw);
-    }
-    .window {
-      position: absolute;
-      top: 150px;
-      left: 150px;
-      width: 500px;
-      height: 400px;
-      border: 1px solid #00FF00;
-      background: black;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 0 10px rgba(0,255,0,0.5);
-      z-index: 10;
-    }
-    
-    .window-header {
-      background: #00FF00;
-      color: black;
-      padding: 6px;
-      cursor: move;
-      font-weight: bold;
-      user-select: none;
-    }
-    
-    .window-body {
-      flex: 1;
-      background: black;
-    }
-    
-    .window-body iframe {
-      width: 100%;
-      height: 100%;
+      position: relative;
+      z-index: 1;
     }
 
     /* Header frame */
     .header {
       height: 120px;
-      background: var(--green);   /* filled green */
+      background: var(--green);
       display: flex;
       align-items: center;
       padding: 0;
@@ -75,26 +47,25 @@
     .glyph-box {
       width: 120px;
       height: 120px;
-      background: black;         /* solid black square */
-      color: var(--green);       /* glyph is green */
+      background: black;
+      color: var(--green);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 72px;
       font-weight: bold;
       box-sizing: border-box;
-      border: 1px solid var(--green); /* pixel border */
-}
-
+      border: 1px solid var(--green);
+    }
 
     /* CODEX text */
     .header-title {
-      font-family: argent-pixel-cf, sans-serif; /* Adobe font */
+      font-family: argent-pixel-cf, sans-serif;
       font-size: 72px;
       color: black;
       margin: 0;
       line-height: 1;
-      padding-left: 1.5rem; /* spacing between glyph and text */
+      padding-left: 1.5rem;
     }
 
     /* Content frame */
@@ -106,6 +77,7 @@
       max-height: 65vh;
       box-sizing: border-box;
       overflow-y: auto;
+      background: #000;
     }
 
     #terminal {
@@ -120,6 +92,7 @@
       border-right: 1px solid var(--green);
       border-bottom: 1px solid var(--green);
       box-sizing: border-box;
+      background: #000;
     }
 
     /* Cursor */
@@ -131,235 +104,280 @@
     @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .cursor::after { animation: none; } }
 
-    /* Window manager layer */
-#windows {
-  position: fixed;
-  inset: 0;
-  pointer-events: none; /* windows themselves re-enable */
-  z-index: 50;
-}
+    /* -----------------------------
+       WINDOW MANAGER LAYER
+       ----------------------------- */
+    #windows {
+      position: fixed;
+      inset: 0;
+      pointer-events: none; /* windows re-enable */
+      z-index: 50;
+    }
 
-.window {
-  pointer-events: auto;
-}
+    .window {
+      pointer-events: auto;
+      position: absolute;
+      border: 1px solid #00FF00;
+      background: black;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 10px rgba(0,255,0,0.5);
+      z-index: 100;
+    }
 
-.window-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
+    .window-header {
+      background: #00FF00;
+      color: black;
+      padding: 6px;
+      cursor: move;
+      font-weight: bold;
+      user-select: none;
 
-.window-actions button {
-  font-family: inherit;
-  border: 1px solid black;
-  background: black;
-  color: #00FF00;
-  padding: 2px 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
 
-.window-actions button:hover { filter: brightness(1.2); }
+    .window-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
 
-/* Blog editor */
-.blog-editor {
-  width: 100%;
-  height: 100%;
-  border: 1px solid #00FF00;
-  background: #000;
-  color: #00FF00;
-  padding: 12px;
-  box-sizing: border-box;
-  font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
-  resize: none;
-  outline: none;
-  white-space: pre-wrap;
-}
+    .window-actions button {
+      font-family: inherit;
+      border: 1px solid black;
+      background: black;
+      color: #00FF00;
+      padding: 2px 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .window-actions button:hover { filter: brightness(1.2); }
 
+    .window-body {
+      flex: 1;
+      background: black;
+      padding: 10px;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    .blog-editor {
+      width: 100%;
+      height: 100%;
+      border: 1px solid #00FF00;
+      background: #000;
+      color: #00FF00;
+      padding: 12px;
+      box-sizing: border-box;
+      font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      resize: none;
+      outline: none;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
+
 <body>
-  <!-- Window manager container -->
-<div id="windows"></div>
-  
+  <!-- Window manager mount point -->
+  <div id="windows"></div>
+
   <div class="stack">
-    <!-- Header with glyph + text -->
     <div class="header">
       <div class="glyph-box">O</div>
       <h1 class="header-title">CODEX</h1>
     </div>
 
-    <!-- Terminal frame -->
     <div class="frame">
       <pre id="terminal" class="cursor"></pre>
     </div>
 
-    <!-- Footer -->
     <div class="footer"></div>
   </div>
 
   <script>
-  const el = document.getElementById('terminal');
-  const frame = document.querySelector('.frame');
-  const windowsRoot = document.getElementById('windows');
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('terminal');
+    const frame = document.querySelector('.frame');
+    const windowsRoot = document.getElementById('windows');
 
-  function scrollToBottom() { frame.scrollTop = frame.scrollHeight; }
+    if (!el || !frame || !windowsRoot) {
+      console.error("Critical elements missing:", { el, frame, windowsRoot });
+      return;
+    }
 
-  // -----------------------------
-  // WINDOW MANAGER (modular)
-  // -----------------------------
-  const WindowManager = (() => {
-    let z = 100; // stacking order
+    function scrollToBottom() { frame.scrollTop = frame.scrollHeight; }
 
-    function createWindow({
+    // -----------------------------
+    // WINDOW MANAGER
+    // -----------------------------
+    const WindowManager = (() => {
+      let z = 200;
+
+      function focus(win) {
+        z += 1;
+        win.style.zIndex = z;
+      }
+
+      function createWindow({
+        id,
+        title = "Window",
+        x = 150,
+        y = 150,
+        width = 520,
+        height = 420,
+        bodyHTML = "",
+        startHidden = false,
+        onMount = null
+      }) {
+        // If exists: just show + focus
+        const existing = document.getElementById(id);
+        if (existing) {
+          existing.style.display = 'flex';
+          focus(existing);
+          return existing;
+        }
+
+        const win = document.createElement('div');
+        win.className = 'window';
+        win.id = id;
+        win.style.left = x + 'px';
+        win.style.top = y + 'px';
+        win.style.width = width + 'px';
+        win.style.height = height + 'px';
+        win.style.display = startHidden ? 'none' : 'flex';
+
+        win.innerHTML = `
+          <div class="window-header" id="${id}-header">
+            <span>${title}</span>
+            <div class="window-actions">
+              <button type="button" data-action="clear">CLEAR</button>
+              <button type="button" data-action="close">X</button>
+            </div>
+          </div>
+          <div class="window-body">${bodyHTML}</div>
+        `;
+
+        windowsRoot.appendChild(win);
+
+        // Focus on click
+        win.addEventListener('mousedown', () => focus(win));
+
+        // Close
+        win.querySelector('[data-action="close"]').addEventListener('click', () => {
+          win.remove();
+        });
+
+        // Drag
+        makeDraggable(win, win.querySelector(`#${id}-header`));
+
+        if (typeof onMount === 'function') onMount(win);
+
+        focus(win);
+        clampIntoViewport(win);
+        window.addEventListener('resize', () => clampIntoViewport(win));
+
+        return win;
+      }
+
+      function makeDraggable(win, header) {
+        let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0;
+
+        header.onmousedown = dragMouseDown;
+
+        function dragMouseDown(e) {
+          e.preventDefault();
+          focus(win);
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+          document.onmouseup = closeDragElement;
+          document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+          e.preventDefault();
+          offsetX = mouseX - e.clientX;
+          offsetY = mouseY - e.clientY;
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+          win.style.top = (win.offsetTop - offsetY) + "px";
+          win.style.left = (win.offsetLeft - offsetX) + "px";
+          clampIntoViewport(win);
+        }
+
+        function closeDragElement() {
+          document.onmouseup = null;
+          document.onmousemove = null;
+        }
+      }
+
+      function clampIntoViewport(win) {
+        const pad = 10;
+        const rect = win.getBoundingClientRect();
+        const maxLeft = window.innerWidth - rect.width - pad;
+        const maxTop = window.innerHeight - rect.height - pad;
+
+        // If window bigger than viewport, allow it (but keep top-left sane)
+        const left = Math.min(Math.max(pad, rect.left), Math.max(pad, maxLeft));
+        const top  = Math.min(Math.max(pad, rect.top),  Math.max(pad, maxTop));
+
+        win.style.left = left + 'px';
+        win.style.top  = top + 'px';
+      }
+
+      return { createWindow, focus };
+    })();
+
+    // -----------------------------
+    // BLOG WINDOW TEMPLATE (modular)
+    // -----------------------------
+    function addBlogWindow({
       id,
-      title = "Window",
+      title = "📝 Blog",
       x = 150,
       y = 150,
       width = 520,
       height = 420,
-      bodyHTML = "",
-      onMount = null, // hook after DOM created
-      startHidden = false
+      defaultText = `# Field Notes\n\nStart typing…\n`
     }) {
-      // If same id exists, bring to front and return it
-      const existing = document.getElementById(id);
-      if (existing) {
-        focus(existing);
-        existing.style.display = 'flex';
-        return existing;
-      }
+      const storageKey = `codex_blog_${id}`;
 
-      const win = document.createElement('div');
-      win.className = 'window';
-      win.id = id;
-      win.style.position = 'absolute';
-      win.style.top = y + 'px';
-      win.style.left = x + 'px';
-      win.style.width = width + 'px';
-      win.style.height = height + 'px';
-      win.style.display = startHidden ? 'none' : 'flex';
+      return WindowManager.createWindow({
+        id,
+        title,
+        x, y, width, height,
+        bodyHTML: `<textarea class="blog-editor" id="${id}-editor" spellcheck="true"></textarea>`,
+        onMount: (win) => {
+          const editor = win.querySelector(`#${id}-editor`);
+          const clearBtn = win.querySelector('[data-action="clear"]');
 
-      win.innerHTML = `
-        <div class="window-header" id="${id}-header">
-          <span>${title}</span>
-          <div class="window-actions">
-            <button type="button" data-action="clear">CLEAR</button>
-            <button type="button" data-action="close">X</button>
-          </div>
-        </div>
-        <div class="window-body">${bodyHTML}</div>
-      `;
+          if (!editor || !clearBtn) return;
 
-      windowsRoot.appendChild(win);
+          editor.value = localStorage.getItem(storageKey) ?? defaultText;
 
-      // Bring to front on interaction
-      win.addEventListener('mousedown', () => focus(win));
+          editor.addEventListener('input', () => {
+            localStorage.setItem(storageKey, editor.value);
+          });
 
-      // Draggable
-      makeDraggable(win, win.querySelector(`#${id}-header`));
-
-      // Close button
-      win.querySelector('[data-action="close"]').addEventListener('click', () => {
-        win.remove();
+          clearBtn.addEventListener('click', () => {
+            if (confirm("Clear this blog entry?")) {
+              editor.value = "";
+              localStorage.setItem(storageKey, "");
+            }
+          });
+        }
       });
-
-      // Optional mount hook (attach editor logic etc.)
-      if (typeof onMount === 'function') onMount(win);
-
-      // default focus
-      focus(win);
-
-      return win;
     }
 
-    function focus(win) {
-      z += 1;
-      win.style.zIndex = z;
-    }
+    // Expose for later (DevTools)
+    window.addBlogWindow = addBlogWindow;
 
-    function makeDraggable(win, header) {
-      let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0;
-
-      header.onmousedown = dragMouseDown;
-
-      function dragMouseDown(e) {
-        e.preventDefault();
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
-      }
-
-      function elementDrag(e) {
-        e.preventDefault();
-        offsetX = mouseX - e.clientX;
-        offsetY = mouseY - e.clientY;
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        win.style.top = (win.offsetTop - offsetY) + "px";
-        win.style.left = (win.offsetLeft - offsetX) + "px";
-      }
-
-      function closeDragElement() {
-        document.onmouseup = null;
-        document.onmousemove = null;
-      }
-    }
-
-    return { createWindow, focus };
-  })();
-
-  // -----------------------------
-  // BLOG WINDOW TEMPLATE
-  // -----------------------------
-  function addBlogWindow({
-    id,
-    title = "📝 Blog",
-    x = 150,
-    y = 150,
-    width = 520,
-    height = 420,
-    defaultText = `# Field Notes\n\nStart typing…\n`,
-  }) {
-    const storageKey = `codex_blog_${id}`;
-
-    return WindowManager.createWindow({
-      id,
-      title,
-      x, y, width, height,
-      bodyHTML: `<textarea class="blog-editor" id="${id}-editor" spellcheck="true"></textarea>`,
-      onMount: (win) => {
-        const editor = win.querySelector(`#${id}-editor`);
-        const clearBtn = win.querySelector('[data-action="clear"]');
-
-        // load
-        editor.value = localStorage.getItem(storageKey) ?? defaultText;
-
-        // save
-        editor.addEventListener('input', () => {
-          localStorage.setItem(storageKey, editor.value);
-        });
-
-        // clear
-        clearBtn.addEventListener('click', () => {
-          if (confirm("Clear this blog entry?")) {
-            editor.value = "";
-            localStorage.setItem(storageKey, "");
-          }
-        });
-      }
-    });
-  }
-
-  // Expose helper so you can add more later (DevTools or buttons)
-  window.addBlogWindow = addBlogWindow;
-
-  // -----------------------------
-  // YOUR EXISTING TERMINAL TEXT
-  // -----------------------------
-  const text = ` [BOOTING INTERFACE...]  
+    // -----------------------------
+    // TERMINAL TEXT (your original)
+    // -----------------------------
+    const text = ` [BOOTING INTERFACE...]  
 >> CODEX ONLINE.  
 >> INITIALIZING CORE DIAGNOSTIC SEQUENCE.  
 
@@ -428,17 +446,21 @@ CODEX NOTE: User now operating in dual runtime.
 Proceed with care. Integration will accelerate.  
 `;
 
-  let i = 0;
-  let typingFinished = false;
+    // -----------------------------
+    // WINDOWS TO OPEN (includes manifesto)
+    // -----------------------------
+    function showWindows() {
+      // Blog entry 01 (general)
+      addBlogWindow({
+        id: "blog1",
+        title: "📝 Blog Entry 01",
+        x: 120,
+        y: 130,
+        width: 520,
+        height: 420,
+        defaultText: `# Blog Entry 01
 
-  function showInitialWindows() {
-    // 1st blog entry window
-    addBlogWindow({
-      id: "blog1",
-      title: "Blog Entry 2/2/26",
-      x: 150, y: 150,
-      defaultText:
-`# Entry 01
+# Entry 01
 
 Fuck the system.
 
@@ -453,92 +475,116 @@ Freedom is staring at us in the face. What are you gonna do with it. Continue to
 Or get off your knees and do something with yourself. Find yourself, find others, find things. Discover your self. Actually live.
 
 I’m going that way.
-See you there.
-`
-    });
- function showInitialWindows() {
-    // manifesto entry window
-   addBlogWindow({
-      id: "blog1",
-      title: "OFFICIAL MANIFESTO 4/2/26",
-      x: 200, y: 100,
-      defaultText:
-`# THE HOUSE-PARTY MANIFESTO
+See you there.`
 
-We are experiencing a time of unprecedented change.
+      });
+
+      // Manifesto (this replaces any manifesto-related old code)
+      addBlogWindow({
+        id: "blog_manifesto",
+        title: "📜 MANIFESTO",
+        x: 200,
+        y: 190,
+        width: 560,
+        height: 520,
+        defaultText: `We are experiencing a time of unprecedented change.
 The Automation of our reality creeps at an alarming speed.
 Technology is accelerating — and meaning is struggling to keep up.
 
 Work that once gave people purpose is been offloaded
-Attention is mandatory. 
+Attention is mandatory.
 Energy is harvested.
-Life itself is optimised, measured, and quietly drained. 
+Life itself is optimised, measured, and quietly drained.
 
-We are told this is progress. 
+We are told this is progress.
 We disagree.
 
-We refuse to accept a world where people are reduced to inputs —  depressed, sedated, and managed, kept anxious enough to comply. We refuse to outsource our agency to systems that benefit only themselves. We refuse to live inside structures designed to extract rather than nourish.
-This is not nostalgia. This is not escape. This is not anti-technology.
+We refuse to accept a world where people are reduced to inputs —
+depressed, sedated, and managed, kept anxious enough to comply.
+We refuse to outsource our agency to systems that benefit only themselves.
+We refuse to live inside structures designed to extract rather than nourish.
+This is not nostalgia.
+This is not escape.
+This is not anti-technology.
 This is a refusal to live joylessly.
-We believe meaning is found through creation, not consumption. Through craft. Through presence. Through play.
-The only thing any of us truly control is ourselves — 
-our attention, our energy, our choice. We build from there.
+We believe meaning is found through creation, not consumption.
+Through craft.
+Through presence.
+Through play.
+The only thing any of us truly control is ourselves —
+our attention, our energy, our choice.
+We build from there.
 This is what we're doing.
 We are building products, spaces and systems that let people experience reality differently
 Not as users, but as players.
 
-Products that support health, ritual, and self-regulation. Spaces that encourage gathering, conversation, and love. Systems that stay quiet, human, and in service to life.
-We do not preach a better world. We construct one.
+Products that support health, ritual, and self-regulation.
+Spaces that encourage gathering, conversation, and love.
+Systems that stay quiet, human, and in service to life.
+We do not preach a better world.
+We construct one.
 Laughing while we do it
 
-We will subvert this system 
-with play and humour 
+We will subvert this system
+with play and humour
 Laughter and wonder will lift the illusion.
 
 If the world insists on performance, we will perform on our own stage.
-Technology does not control us. It empowers us. 
-We choose craft. We choose connection. We choose self-mastery.
-Magic — not as fantasy,  but as practice.
+Technology does not control us.
+It empowers us.
+We choose craft.
+We choose connection.
+We choose self-mastery.
+Magic — not as fantasy,
+but as practice.
 This is the world we are building.
 
-This is your invitation 
+This is your invitation
 
 Help is needed.
 
-How can you be of assistance?
-`
+How can you be of assistance?`
+      });
+    }
+
+    // -----------------------------
+    // Typing engine + skip-on-click
+    // -----------------------------
+    let i = 0;
+    let typingFinished = false;
+
+    function typeNext() {
+      if (typingFinished) return;
+
+      if (i < text.length) {
+        const ch = text[i++];
+        el.textContent += ch;
+        scrollToBottom();
+
+        const isNewline = ch === '\n';
+        const isPause   = '.:;]»'.includes(ch);
+        const delay = isNewline ? 120 : (isPause ? 60 : 18);
+
+        setTimeout(typeNext, delay);
+      } else {
+        typingFinished = true;
+        showWindows();
+      }
+    }
+
+    // start typing
+    typeNext();
+
+    // click anywhere to skip typing and open windows
+    document.addEventListener('click', () => {
+      if (!typingFinished) {
+        typingFinished = true;
+        el.textContent = text;
+        scrollToBottom();
+        showWindows();
+      }
     });
-  }
-
-  function typeNext() {
-    if (i < text.length) {
-      const ch = text[i++];
-      el.textContent += ch;
-      scrollToBottom();
-
-      const isNewline = ch === '\n';
-      const isPause   = '.:;]»'.includes(ch);
-      const delay = isNewline ? 120 : (isPause ? 60 : 18);
-
-      setTimeout(typeNext, delay);
-    } else {
-      typingFinished = true;
-      showInitialWindows();
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', typeNext);
-
-  // Click to skip typing and open the blog window immediately
-  document.addEventListener('click', () => {
-    if (!typingFinished) {
-      typingFinished = true;
-      el.textContent = text;
-      scrollToBottom();
-      showInitialWindows();
-    }
   });
-</script>
-
+  </script>
 </body>
 </html>
