@@ -1,1 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Projects — House of Mouth</title>
+
+  <!-- Adobe Argent Pixel font -->
+  <link rel="stylesheet" href="https://use.typekit.net/pxo3vzp.css">
+
+  <style>
+    :root { --green:#00FF00; --bg:#000; }
+
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--green);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      border: 1px solid var(--green);
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      height: 100px;
+      background: var(--green);
+      color: black;
+      border-bottom: 1px solid var(--green);
+    }
+
+    .glyph {
+      width: 100px;
+      height: 100px;
+      background: black;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      font-weight: bold;
+      border-right: 1px solid var(--green);
+    }
+
+    .title {
+      font-family: argent-pixel-cf, sans-serif;
+      font-size: 56px;
+      margin: 0;
+      padding-left: 16px;
+      line-height: 1;
+    }
+
+    /* Nav */
+    .nav {
+      display: flex;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--green);
+    }
+
+    .nav a {
+      color: var(--green);
+      text-decoration: none;
+      border: 1px solid var(--green);
+      padding: 6px 10px;
+      display: inline-block;
+    }
+
+    .nav a:hover {
+      background: rgba(0,255,0,0.1);
+    }
+
+    /* Content */
+    .content {
+      padding: 14px 12px;
+    }
+
+    .card {
+      border: 1px solid var(--green);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .card h2 {
+      margin: 0 0 6px 0;
+      font-size: 18px;
+    }
+
+    .meta {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--green);
+      padding: 2px 6px;
+      margin-right: 6px;
+      font-size: 12px;
+    }
+
+    .card p {
+      margin: 0;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <!-- Header -->
+    <div class="header">
+      <div class="glyph">O</div>
+      <h1 class="title">PROJECTS</h1>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav">
+      <a href="/">Home</a>
+      <a href="/projects/">Projects</a>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <div class="card">
+        <h2>Potion Seller</h2>
+        <div class="meta">
+          <span class="tag">Product</span>
+          <span class="tag">Ritual</span>
+          <span class="tag">Health</span>
+        </div>
+        <p>
+          Functional products designed to support health, ritual, and self-regulation.
+          Contraband from an alternate reality.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>House of Mouth Studio</h2>
+        <div class="meta">
+          <span class="tag">Design</span>
+          <span class="tag">Systems</span>
+          <span class="tag">Culture</span>
+        </div>
+        <p>
+          A design and systems studio constructing quiet, human-centred alternatives
+          to extractive digital culture.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>TM_OS</h2>
+        <div class="meta">
+          <span class="tag">Framework</span>
+          <span class="tag">Operating System</span>
+        </div>
+        <p>
+          A parallel operating system for living — combining structure, play,
+          craft, and self-mastery.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
 
