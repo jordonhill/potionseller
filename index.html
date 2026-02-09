@@ -83,7 +83,7 @@
 // Toggle EDIT BG to change this background text.
 
 routes = {
-  codex: "/codex/",
+  TM-OS: "/TM-OS/",
   projects: "/projects/",
 };
 
@@ -191,10 +191,10 @@ boot();`;
 
     // ---------- Default windows ----------
     createWindow({
-      id: "win_codex",
-      title: "CODEX",
+      id: "win_TM-OS",
+      title: "TM-OS",
       x: 80, y: 80, w: 760, h: 520,
-      url: "/codex/"
+      url: "/TM-OS/"
     });
 
     createWindow({
@@ -206,7 +206,7 @@ boot();`;
 
     // ---------- Add new window button ----------
     newWinBtn.addEventListener('click', () => {
-      const url = prompt("Enter a URL or route (e.g. /projects/ or /codex/):", "/projects/");
+      const url = prompt("Enter a URL or route (e.g. /projects/ or /TM-OS/):", "/projects/");
       if(!url) return;
       const safeId = "win_" + Math.random().toString(16).slice(2);
       createWindow({ id: safeId, title: url, x: 120, y: 120, w: 640, h: 420, url });
