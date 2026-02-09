@@ -204,6 +204,26 @@ boot();`;
       url: "/projects/"
     });
 
+    createWindow({
+  id: "win_manifesto",
+  title: "📜 MANIFESTO /4226",
+  x: 180,
+  y: 180,
+  w: 640,
+  h: 520,
+  url: "/manifesto/"
+});
+
+  createWindow({
+  id: "win_blog",
+  title: "📜 Blog Entry 01/2226",
+  x: 180,
+  y: 180,
+  w: 640,
+  h: 520,
+  url: "/blog/"
+});
+
     // ---------- Add new window button ----------
     newWinBtn.addEventListener('click', () => {
       const url = prompt("Enter a URL or route (e.g. /projects/ or /TM-OS/):", "/projects/");
