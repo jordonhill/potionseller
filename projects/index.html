@@ -112,52 +112,6 @@
       margin: 0;
       line-height: 1.5;
     }
-    /* Thumbnails */
-.thumb-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
-.thumb {
-  width: 140px;
-  height: 90px;
-  object-fit: cover;
-  border: 1px solid var(--green);
-  cursor: pointer;
-  display:block;
-}
-.thumb:hover { outline: 1px solid var(--green); }
-
-/* Window manager */
-#windows { position:fixed; inset:0; pointer-events:none; z-index:9999; }
-.win {
-  pointer-events:auto;
-  position:absolute;
-  border:1px solid var(--green);
-  background:#000;
-  box-shadow:0 0 10px rgba(0,255,0,0.35);
-  display:flex;
-  flex-direction:column;
-}
-.win-header{
-  background:var(--green);
-  color:#000;
-  padding:6px;
-  font-weight:bold;
-  cursor:move;
-  user-select:none;
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-}
-.win-header button{
-  font-family:inherit;
-  border:1px solid #000;
-  background:#000;
-  color:var(--green);
-  padding:2px 8px;
-  cursor:pointer;
-  font-weight:bold;
-}
-.win-body{ padding:10px; overflow:auto; flex:1; }
-.win-body img{ max-width:100%; height:auto; border:1px solid var(--green); display:block; }
-
   </style>
 </head>
 
@@ -168,8 +122,6 @@
       <div class="glyph">O</div>
       <h1 class="title">PROJECTS</h1>
     </div>
-    <div id="windows"></div>
-
 
     <!-- Navigation -->
     <div class="nav">
@@ -187,12 +139,6 @@
           <span class="tag">Ritual</span>
           <span class="tag">Health</span>
         </div>
-        <div class="thumb-row">
-  <img class="thumb" data-full="/assets/projects/potion-seller/1.jpg" data-title="Potion Seller — 01" src="/assets/projects/potion-seller/1.jpg" alt="Potion Seller thumbnail 1">
-  <img class="thumb" data-full="/assets/projects/potion-seller/2.jpg" data-title="Potion Seller — 02" src="/assets/projects/potion-seller/2.jpg" alt="Potion Seller thumbnail 2">
-  <img class="thumb" data-full="/assets/projects/potion-seller/3.jpg" data-title="Potion Seller — 03" src="/assets/projects/potion-seller/3.jpg" alt="Potion Seller thumbnail 3">
-</div>
-
         <p>
           Functional products designed to support health, ritual, and self-regulation.
           Contraband from an alternate reality.
@@ -200,115 +146,43 @@
       </div>
 
       <div class="card">
-        <h2>House of Mouth Studio</h2>
+        <h2>Mouth Party</h2>
         <div class="meta">
-          <span class="tag">Design</span>
-          <span class="tag">Systems</span>
+          <span class="tag">Events</span>
+          <span class="tag">World Building</span>
           <span class="tag">Culture</span>
         </div>
         <p>
-          A design and systems studio constructing quiet, human-centred alternatives
-          to extractive digital culture.
+          A professioanl House Party. re-cretaing that feeling we find at House Parties. Safe, comfortable, sourrounded by poeple we know and people we don't but all 1-step removed. Somewhere to experiemnt and explore.
         </p>
       </div>
 
       <div class="card">
-        <h2>TM_OS</h2>
+        <h2>The Caff</h2>
         <div class="meta">
-          <span class="tag">Framework</span>
-          <span class="tag">Operating System</span>
+          <span class="tag">Food & Drink</span>
+          <span class="tag">Culture</span>
+          <span class="tag">Influence</span>
         </div>
         <p>
-          A parallel operating system for living — combining structure, play,
-          craft, and self-mastery.
+          Every House needs a Kitchen. the Caff was an experimental phase-in, a Café but healthy. Wholefood Snacks and Fucntional Drinks. This experiemntal kitchen began the bedrock of an alternate nutrition system. It blended NeoNatural principles with the common café, creating a food stop as nature intended. Closed due to external forces.
+        </p>
+      </div>
+
+        <div class="card">
+        <h2>Neonatural</h2>
+        <div class="meta">
+          <span class="tag">Systems</span>
+          <span class="tag">Design</span>
+          <span class="tag">Influence</span>
+        </div>
+        <p>
+         A set of philosophical design princples, reconnecting people with nature in urban settings. Nature - upgraded.
         </p>
       </div>
 
     </div>
   </div>
-  <script>
-(() => {
-  const root = document.getElementById('windows');
-  let z = 1000;
-
-  function focus(win){ win.style.zIndex = ++z; }
-
-  function createImageWindow({ title, src, x=120, y=120, w=520, h=420 }) {
-    const id = 'img_' + Math.random().toString(16).slice(2);
-
-    const win = document.createElement('div');
-    win.className = 'win';
-    win.id = id;
-    win.style.left = x + 'px';
-    win.style.top  = y + 'px';
-    win.style.width = w + 'px';
-    win.style.height = h + 'px';
-
-    win.innerHTML = `
-      <div class="win-header" id="${id}-header">
-        <span>${title}</span>
-        <button type="button" data-close> X </button>
-      </div>
-      <div class="win-body">
-        <img src="${src}" alt="${title}">
-      </div>
-    `;
-
-    root.appendChild(win);
-    focus(win);
-
-    win.addEventListener('mousedown', () => focus(win));
-    win.querySelector('[data-close]').addEventListener('click', () => win.remove());
-
-    makeDraggable(win, win.querySelector(`#${id}-header`));
-  }
-
-  function makeDraggable(win, header) {
-    let startX=0, startY=0, lastX=0, lastY=0;
-
-    header.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      focus(win);
-      startX = e.clientX;
-      startY = e.clientY;
-      lastX = win.offsetLeft;
-      lastY = win.offsetTop;
-
-      const onMove = (ev) => {
-        const dx = ev.clientX - startX;
-        const dy = ev.clientY - startY;
-        win.style.left = (lastX + dx) + 'px';
-        win.style.top  = (lastY + dy) + 'px';
-      };
-
-      const onUp = () => {
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-      };
-
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-    });
-  }
-
-  // Hook up thumbnails
-  document.querySelectorAll('.thumb').forEach((img, idx) => {
-    img.addEventListener('click', () => {
-      const full = img.dataset.full || img.src;
-      const title = img.dataset.title || 'Image';
-      createImageWindow({
-        title,
-        src: full,
-        x: 120 + (idx % 6) * 30,
-        y: 120 + (idx % 6) * 20,
-        w: 560,
-        h: 420
-      });
-    });
-  });
-})();
-</script>
-
 </body>
 </html>
 
