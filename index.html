@@ -39,14 +39,53 @@
 
     /* Window manager layer */
     #windows{ position:fixed; inset:0; z-index:50; pointer-events:none; }
-    .window{ pointer-events:auto; position:absolute; display:flex; flex-direction:column;
-      border:1px solid var(--green); background:#000;
+    .window{
+      pointer-events:auto;
+      position:absolute;
+      display:flex;
+      flex-direction:column;
+      border:1px solid var(--green);
+      background:#000;
       box-shadow:0 0 12px rgba(0,255,0,.35);
+      resize: both;
+      overflow: auto;
+      min-width: 220px;
+      min-height: 120px;
+      max-width: 98vw;
+      max-height: 90vh;
     }
     .window-header{
       background:var(--green); color:#000;
       padding:6px; font-weight:bold; cursor:move; user-select:none;
       display:flex; justify-content:space-between; gap:10px; align-items:center;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    #minibar {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      height: 38px;
+      background: #111;
+      border-top: 1px solid var(--green);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      z-index: 10001;
+    }
+    .minibar-btn {
+      background: var(--green);
+      color: #000;
+      border: 1px solid #000;
+      border-radius: 4px 4px 0 0;
+      padding: 4px 12px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 4px;
+      font-size: 15px;
     }
     .window-actions{ display:flex; gap:8px; }
     .window-actions button{
@@ -55,6 +94,19 @@
     }
     .window-body{ flex:1; overflow:hidden; }
     .window-body iframe{ width:100%; height:100%; border:0; background:#000; }
+      .resize-handle {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 18px;
+        height: 18px;
+        background: var(--green);
+        cursor: se-resize;
+        z-index: 10;
+        border-top: 1px solid #000;
+        border-left: 1px solid #000;
+        opacity: 0.7;
+      }
   </style>
 </head>
 <body>
@@ -67,6 +119,7 @@
 
   <div id="bg" contenteditable="true" spellcheck="false"></div>
   <div id="windows"></div>
+  <div id="minibar"></div>
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -120,21 +173,41 @@ boot();`;
         <div class="window-header" id="${id}-header">
           <span>${title}</span>
           <div class="window-actions">
+            <button type="button" data-minimize>_</button>
             <button type="button" data-reload>R</button>
             <button type="button" data-close>X</button>
           </div>
         </div>
-        <div class="window-body">
-          <iframe src="${url}" title="${title}"></iframe>
+        <div class="window-body" style="position:relative;flex:1;">
+          <div class="window-focus-overlay" style="position:absolute;left:0;top:0;right:20px;bottom:20px;z-index:5;cursor:pointer;"></div>
+          <iframe src="${url}" title="${title}" style="position:relative;z-index:1;width:100%;height:100%;"></iframe>
         </div>
       `;
+      // Minimize logic
+      const minibar = document.getElementById('minibar');
+      const minimizeBtn = win.querySelector('[data-minimize]');
+      minimizeBtn.addEventListener('click', () => {
+        win.style.display = 'none';
+        let btn = document.createElement('button');
+        btn.className = 'minibar-btn';
+        btn.textContent = title;
+        btn.onclick = () => {
+          win.style.display = 'flex';
+          focus(win);
+          btn.remove();
+        };
+        minibar.appendChild(btn);
+      });
 
       windowsRoot.appendChild(win);
       focus(win);
 
-      win.addEventListener('mousedown', (e) => {
-        // Only focus if clicking inside the window, not on close/minimize buttons
-        if (!e.target.closest('.window-actions button')) {
+      // Focus window when clicking anywhere on the window except controls or iframe
+      // Overlay click focuses window, but ignore if clicking controls or resize
+      const overlay = win.querySelector('.window-focus-overlay');
+      overlay.addEventListener('mousedown', (e) => {
+        // Don't focus if clicking on action buttons or resize handle
+        if (!e.target.closest('.window-actions button') && !e.target.classList.contains('resize-handle')) {
           focus(win);
         }
       });
@@ -147,6 +220,7 @@ boot();`;
 
       makeDraggable(win, win.querySelector(`#${id}-header`));
       clamp(win);
+
 
       window.addEventListener('resize', () => clamp(win));
       return win;
@@ -162,6 +236,11 @@ boot();`;
         startY = e.clientY;
         lastX = win.offsetLeft;
         lastY = win.offsetTop;
+        // Prevent text selection while dragging
+        document.body.style.userSelect = 'none';
+        document.body.style.webkitUserSelect = 'none';
+        document.body.style.mozUserSelect = 'none';
+        document.body.style.msUserSelect = 'none';
 
         const onMove = (ev) => {
           const dx = ev.clientX - startX;
@@ -174,6 +253,11 @@ boot();`;
         const onUp = () => {
           document.removeEventListener('mousemove', onMove);
           document.removeEventListener('mouseup', onUp);
+          // Restore text selection
+          document.body.style.userSelect = '';
+          document.body.style.webkitUserSelect = '';
+          document.body.style.mozUserSelect = '';
+          document.body.style.msUserSelect = '';
         };
 
         document.addEventListener('mousemove', onMove);
