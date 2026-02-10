@@ -111,15 +111,9 @@
     document.addEventListener('DOMContentLoaded', () => {
       const el = document.getElementById('terminal');
       if (!el) return;
-      el.textContent = ` [BOOTING INTERFACE...]  
->> POTION SELLER ONLINE.
-
-Potion Seller is a static display for the project. This view removes the animated typing and provides a clean, white background with yellow accents.
-
-- Products: Functional blends
-- Mode: Informational
-
-Explore the project thumbnails on the main site for more.`;
+      el.innerHTML = `<img src="/assets/projects/potion-seller/potion seller holding image.png" alt="Potion Seller" style="max-width:100%;height:auto;display:block;margin:0 auto;" />`;
+       // The image replaces the static text above
+       // Ensure the image is displayed correctly
     });
   </script>
 </body>
