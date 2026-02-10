@@ -132,7 +132,12 @@ boot();`;
       windowsRoot.appendChild(win);
       focus(win);
 
-      win.addEventListener('mousedown', () => focus(win));
+      win.addEventListener('mousedown', (e) => {
+        // Only focus if clicking inside the window, not on close/minimize buttons
+        if (!e.target.closest('.window-actions button')) {
+          focus(win);
+        }
+      });
 
       win.querySelector('[data-close]').addEventListener('click', () => win.remove());
       win.querySelector('[data-reload]').addEventListener('click', () => {
