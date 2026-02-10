@@ -4,234 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>House of Mouth</title>
-  <link rel="stylesheet" href="https://use.typekit.net/pxo3vzp.css">
   <style>
-    :root { --green:#00FF00; --bg:#000; }
-
-    html, body { height:100%; }
-    body{
-      margin:0; background:var(--bg); color:var(--green);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
-      overflow:hidden;
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: #ffffff;
     }
 
-    /* Editable code background */
-    .bg-toolbar{
-      position:fixed; top:10px; left:10px; z-index:10000;
-      display:flex; gap:8px; align-items:center;
-      border:1px solid var(--green); background:#000;
-      padding:6px 8px;
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 16px;
+      box-sizing: border-box;
     }
-    .bg-toolbar button{
-      font:inherit; border:1px solid var(--green); background:#000; color:var(--green);
-      padding:4px 10px; cursor:pointer; font-weight:bold;
-    }
-    .bg-toolbar span{ opacity:.85; font-size:12px; }
 
-    #bg{
-      position:fixed; inset:0; padding:60px 18px 18px;
-      white-space:pre-wrap; overflow:auto;
-      color:var(--green); opacity:.35;
-      outline:none;
-      pointer-events:none; /* locked by default */
+    img {
+      width: 100px;
+      height: 100px;
+      display: block;
     }
-    body.editing #bg{ pointer-events:auto; opacity:.8; }
-
-    /* Window manager layer */
-    #windows{ position:fixed; inset:0; z-index:50; pointer-events:none; }
-    .window{ pointer-events:auto; position:absolute; display:flex; flex-direction:column;
-      border:1px solid var(--green); background:#000;
-      box-shadow:0 0 12px rgba(0,255,0,.35);
-    }
-    .window-header{
-      background:var(--green); color:#000;
-      padding:6px; font-weight:bold; cursor:move; user-select:none;
-      display:flex; justify-content:space-between; gap:10px; align-items:center;
-    }
-    .window-actions{ display:flex; gap:8px; }
-    .window-actions button{
-      font:inherit; border:1px solid #000; background:#000; color:var(--green);
-      padding:2px 8px; cursor:pointer; font-weight:bold;
-    }
-    .window-body{ flex:1; overflow:hidden; }
-    .window-body iframe{ width:100%; height:100%; border:0; background:#000; }
   </style>
 </head>
 <body>
-
-  <div class="bg-toolbar">
-    <button id="toggleEdit">EDIT BG</button>
-    <button id="newWin">NEW WINDOW</button>
-    <span id="status">locked</span>
-  </div>
-
-  <div id="bg" contenteditable="true" spellcheck="false"></div>
-  <div id="windows"></div>
-
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const windowsRoot = document.getElementById('windows');
-    const bg = document.getElementById('bg');
-    const toggleEdit = document.getElementById('toggleEdit');
-    const status = document.getElementById('status');
-    const newWinBtn = document.getElementById('newWin');
-
-    // ---------- Background text (editable + saved) ----------
-    const BG_KEY = "hom_desktop_bg_v1";
-    bg.textContent = localStorage.getItem(BG_KEY) ?? `// HOUSE OF MOUTH DESKTOP
-// Click NEW WINDOW to load a page.
-// Toggle EDIT BG to change this background text.
-
-routes = {
-  TM-OS: "/TM-OS/",
-  projects: "/projects/",
-};
-
-boot();`;
-
-    bg.addEventListener('input', () => localStorage.setItem(BG_KEY, bg.textContent));
-
-    function setEditing(on){
-      document.body.classList.toggle('editing', !!on);
-      status.textContent = on ? 'editing' : 'locked';
-    }
-    setEditing(false);
-
-    toggleEdit.addEventListener('click', () => setEditing(!document.body.classList.contains('editing')));
-
-    // ---------- Window Manager ----------
-    let z = 100;
-
-    function focus(win){ win.style.zIndex = ++z; }
-
-    function createWindow({ id, title, x, y, w, h, url }){
-      const existing = document.getElementById(id);
-      if(existing){ existing.style.display = 'flex'; focus(existing); return existing; }
-
-      const win = document.createElement('div');
-      win.className = 'window';
-      win.id = id;
-      win.style.left = x + 'px';
-      win.style.top = y + 'px';
-      win.style.width = w + 'px';
-      win.style.height = h + 'px';
-
-      win.innerHTML = `
-        <div class="window-header" id="${id}-header">
-          <span>${title}</span>
-          <div class="window-actions">
-            <button type="button" data-reload>R</button>
-            <button type="button" data-close>X</button>
-          </div>
-        </div>
-        <div class="window-body">
-          <iframe src="${url}" title="${title}"></iframe>
-        </div>
-      `;
-
-      windowsRoot.appendChild(win);
-      focus(win);
-
-      win.addEventListener('mousedown', () => focus(win));
-
-      win.querySelector('[data-close]').addEventListener('click', () => win.remove());
-      win.querySelector('[data-reload]').addEventListener('click', () => {
-        const iframe = win.querySelector('iframe');
-        iframe.src = iframe.src;
-      });
-
-      makeDraggable(win, win.querySelector(`#${id}-header`));
-      clamp(win);
-
-      window.addEventListener('resize', () => clamp(win));
-      return win;
-    }
-
-    function makeDraggable(win, header){
-      let startX=0, startY=0, lastX=0, lastY=0;
-
-      header.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        focus(win);
-        startX = e.clientX;
-        startY = e.clientY;
-        lastX = win.offsetLeft;
-        lastY = win.offsetTop;
-
-        const onMove = (ev) => {
-          const dx = ev.clientX - startX;
-          const dy = ev.clientY - startY;
-          win.style.left = (lastX + dx) + 'px';
-          win.style.top = (lastY + dy) + 'px';
-          clamp(win);
-        };
-
-        const onUp = () => {
-          document.removeEventListener('mousemove', onMove);
-          document.removeEventListener('mouseup', onUp);
-        };
-
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onUp);
-      });
-    }
-
-    function clamp(win){
-      const pad = 10;
-      const rect = win.getBoundingClientRect();
-      const maxLeft = window.innerWidth - rect.width - pad;
-      const maxTop = window.innerHeight - rect.height - pad;
-
-      const left = Math.min(Math.max(pad, rect.left), Math.max(pad, maxLeft));
-      const top  = Math.min(Math.max(pad, rect.top),  Math.max(pad, maxTop));
-
-      win.style.left = left + 'px';
-      win.style.top = top + 'px';
-    }
-
-    // ---------- Default windows ----------
-    createWindow({
-      id: "win_TM-OS",
-      title: "TM-OS",
-      x: 80, y: 80, w: 760, h: 520,
-      url: "/TM-OS/"
-    });
-
-    createWindow({
-      id: "win_projects",
-      title: "PROJECTS",
-      x: 140, y: 140, w: 620, h: 420,
-      url: "/projects/"
-    });
-
-    createWindow({
-  id: "win_manifesto",
-  title: "📜 MANIFESTO /4226",
-  x: 180,
-  y: 180,
-  w: 640,
-  h: 520,
-  url: "/manifesto/"
-});
-
-  createWindow({
-  id: "win_blog",
-  title: "📜 Blog Entry 01/2226",
-  x: 180,
-  y: 180,
-  w: 640,
-  h: 520,
-  url: "/blog/"
-});
-
-    // ---------- Add new window button ----------
-    newWinBtn.addEventListener('click', () => {
-      const url = prompt("Enter a URL or route (e.g. /projects/ or /TM-OS/):", "/projects/");
-      if(!url) return;
-      const safeId = "win_" + Math.random().toString(16).slice(2);
-      createWindow({ id: safeId, title: url, x: 120, y: 120, w: 640, h: 420, url });
-    });
-  });
-  </script>
+  <img src="assets/home-logo.svg" alt="House of Mouth logo" />
 </body>
 </html>
