@@ -224,6 +224,31 @@ boot();`;
   url: "/blog/"
 });
 
+    // Duplicate TM-OS window as a static Potion Seller window (yellow accents, no animation)
+    createWindow({
+      id: "win_PotionSeller",
+      title: "Potion Seller",
+      x: 220,
+      y: 160,
+      w: 700,
+      h: 520,
+      url: "/potion-seller/"
+    });
+
+    // Apply accent overrides for the Potion Seller window (yellow)
+    const _ps = document.getElementById('win_PotionSeller');
+    if (_ps) {
+      _ps.style.border = '1px solid #ffff00';
+      _ps.style.boxShadow = '0 0 12px rgba(255,255,0,0.35)';
+      const hdr = _ps.querySelector('.window-header');
+      if (hdr) {
+        hdr.style.background = '#ffff00';
+        hdr.style.color = '#000';
+      }
+      const iframe = _ps.querySelector('.window-body iframe');
+      if (iframe) iframe.style.background = '#fff';
+    }
+
     // ---------- Add new window button ----------
     newWinBtn.addEventListener('click', () => {
       const url = prompt("Enter a URL or route (e.g. /projects/ or /TM-OS/):", "/projects/");
