@@ -6,6 +6,28 @@
   <title>House of Mouth</title>
   <link rel="stylesheet" href="https://use.typekit.net/pxo3vzp.css">
   <style>
+        @media (max-width: 640px) {
+          #minibar {
+            flex-direction: column;
+            height: auto;
+            max-height: 40vh;
+            overflow-y: auto;
+            align-items: stretch;
+            gap: 8px;
+            padding: 10px;
+            border: 1px solid var(--green);
+            border-radius: 8px;
+          }
+          .minibar-btn {
+            width: 100%;
+            margin-top: 0;
+            padding: 10px 12px;
+            font-size: 16px;
+          }
+          #windows {
+            inset: 0 0 160px 0;
+          }
+        }
     :root { --green:#00FF00; --bg:#000; }
 
     html, body { height:100%; }
@@ -15,18 +37,13 @@
       overflow:hidden;
     }
 
-    /* Editable code background */
-    .bg-toolbar{
-      position:fixed; top:10px; left:10px; z-index:10000;
-      display:flex; gap:8px; align-items:center;
-      border:1px solid var(--green); background:#000;
-      padding:6px 8px;
+    #bg{
+      position:fixed; inset:0; padding:60px 18px 18px;
+      white-space:pre-wrap; overflow:auto;
+      color:var(--green); opacity:.35;
+      outline:none;
+      pointer-events:none; /* locked by default */
     }
-    .bg-toolbar button{
-      font:inherit; border:1px solid var(--green); background:#000; color:var(--green);
-      padding:4px 10px; cursor:pointer; font-weight:bold;
-    }
-    .bg-toolbar span{ opacity:.85; font-size:12px; }
 
     #bg{
       position:fixed; inset:0; padding:60px 18px 18px;
@@ -48,7 +65,7 @@
       background:#000;
       box-shadow:0 0 12px rgba(0,255,0,.35);
       resize: both;
-      overflow: auto;
+      overflow: hidden;
       min-width: 220px;
       min-height: 120px;
       max-width: 98vw;
@@ -62,6 +79,7 @@
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
+      text-transform: uppercase;
     }
 
     #minibar {
@@ -86,14 +104,16 @@
       cursor: pointer;
       margin-top: 4px;
       font-size: 15px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      text-transform: uppercase;
     }
     .window-actions{ display:flex; gap:8px; }
     .window-actions button{
       font:inherit; border:1px solid #000; background:#000; color:var(--green);
       padding:2px 8px; cursor:pointer; font-weight:bold;
     }
-    .window-body{ flex:1; overflow:hidden; }
-    .window-body iframe{ width:100%; height:100%; border:0; background:#000; }
+    .window-body{ flex:1; overflow:hidden; min-height:0; }
+    .window-body iframe{ width:100%; height:100%; border:0; }
       .resize-handle {
         position: absolute;
         right: 0;
@@ -111,11 +131,7 @@
 </head>
 <body>
 
-  <div class="bg-toolbar">
-    <button id="toggleEdit">EDIT BG</button>
-    <button id="newWin">NEW WINDOW</button>
-    <span id="status">locked</span>
-  </div>
+  
 
   <div id="bg" contenteditable="true" spellcheck="false"></div>
   <div id="windows"></div>
@@ -124,34 +140,7 @@
   <script>
   document.addEventListener('DOMContentLoaded', () => {
     const windowsRoot = document.getElementById('windows');
-    const bg = document.getElementById('bg');
-    const toggleEdit = document.getElementById('toggleEdit');
-    const status = document.getElementById('status');
-    const newWinBtn = document.getElementById('newWin');
-
-    // ---------- Background text (editable + saved) ----------
-    const BG_KEY = "hom_desktop_bg_v1";
-    bg.textContent = localStorage.getItem(BG_KEY) ?? `// HOUSE OF MOUTH DESKTOP
-// Click NEW WINDOW to load a page.
-// Toggle EDIT BG to change this background text.
-
-routes = {
-  TM-OS: "/TM-OS/",
-  projects: "/projects/",
-};
-
-boot();`;
-
-    bg.addEventListener('input', () => localStorage.setItem(BG_KEY, bg.textContent));
-
-    function setEditing(on){
-      document.body.classList.toggle('editing', !!on);
-      status.textContent = on ? 'editing' : 'locked';
-    }
-    setEditing(false);
-
-    toggleEdit.addEventListener('click', () => setEditing(!document.body.classList.contains('editing')));
-
+    // ---------- Window Manager ----------
     // ---------- Window Manager ----------
     let z = 100;
 
@@ -178,9 +167,8 @@ boot();`;
             <button type="button" data-close>X</button>
           </div>
         </div>
-        <div class="window-body" style="position:relative;flex:1;">
-          <div class="window-focus-overlay" style="position:absolute;left:0;top:0;right:20px;bottom:20px;z-index:5;cursor:pointer;"></div>
-          <iframe src="${url}" title="${title}" style="position:relative;z-index:1;width:100%;height:100%;"></iframe>
+        <div class="window-body" style="flex:1;">
+          <iframe src="${url}" title="${title}" style="width:100%;height:100%;border:0;"></iframe>
         </div>
       `;
       // Minimize logic
@@ -202,15 +190,10 @@ boot();`;
       windowsRoot.appendChild(win);
       focus(win);
 
-      // Focus window when clicking anywhere on the window except controls or iframe
-      // Overlay click focuses window, but ignore if clicking controls or resize
-      const overlay = win.querySelector('.window-focus-overlay');
-      overlay.addEventListener('mousedown', (e) => {
-        // Don't focus if clicking on action buttons or resize handle
-        if (!e.target.closest('.window-actions button') && !e.target.classList.contains('resize-handle')) {
-          focus(win);
-        }
-      });
+      // Focus window on any mousedown within the window (capture phase), except action buttons
+      win.addEventListener('mousedown', (e) => {
+        if (!e.target.closest('.window-actions button')) focus(win);
+      }, true);
 
       win.querySelector('[data-close]').addEventListener('click', () => win.remove());
       win.querySelector('[data-reload]').addEventListener('click', () => {
@@ -279,72 +262,65 @@ boot();`;
     }
 
     // ---------- Default windows ----------
-    createWindow({
-      id: "win_TM-OS",
-      title: "TM-OS",
-      x: 80, y: 80, w: 760, h: 520,
-      url: "/TM-OS/"
-    });
+    // Create all windows minimized except TM-OS
+    const windowsToCreate = [
+      { id: "win_TM-OS", title: "TM-OS", x: 80, y: 80, w: 760, h: 520, url: "/TM-OS/", minimize: false },
+      { id: "win_projects", title: "PROJECTS", x: 140, y: 140, w: 620, h: 420, url: "/projects/", minimize: true },
+      { id: "win_manifesto", title: "📜 MANIFESTO /4226", x: 180, y: 180, w: 640, h: 520, url: "/manifesto/", minimize: true },
+      { id: "win_blog", title: "📜 Blog Entry 01/2226", x: 180, y: 180, w: 640, h: 520, url: "/blog/", minimize: true },
+      { id: "win_PotionSeller", title: "Potion Seller", x: 220, y: 160, w: 700, h: 520, url: "/potion-seller/", minimize: true }
+    ];
 
-    createWindow({
-      id: "win_projects",
-      title: "PROJECTS",
-      x: 140, y: 140, w: 620, h: 420,
-      url: "/projects/"
-    });
-
-    createWindow({
-  id: "win_manifesto",
-  title: "📜 MANIFESTO /4226",
-  x: 180,
-  y: 180,
-  w: 640,
-  h: 520,
-  url: "/manifesto/"
-});
-
-  createWindow({
-  id: "win_blog",
-  title: "📜 Blog Entry 01/2226",
-  x: 180,
-  y: 180,
-  w: 640,
-  h: 520,
-  url: "/blog/"
-});
-
-    // Duplicate TM-OS window as a static Potion Seller window (yellow accents, no animation)
-    createWindow({
-      id: "win_PotionSeller",
-      title: "Potion Seller",
-      x: 220,
-      y: 160,
-      w: 700,
-      h: 520,
-      url: "/potion-seller/"
+    const windowRefs = {};
+    windowsToCreate.forEach(win => {
+      const ref = createWindow(win);
+      windowRefs[win.id] = ref;
+      if (win.minimize && ref) {
+        // Minimize by simulating click on minimize button
+        const minBtn = ref.querySelector('[data-minimize]');
+        if (minBtn) minBtn.click();
+      }
     });
 
     // Apply accent overrides for the Potion Seller window (yellow)
-    const _ps = document.getElementById('win_PotionSeller');
-    if (_ps) {
-      _ps.style.border = '1px solid #ffff00';
-      _ps.style.boxShadow = '0 0 12px rgba(255,255,0,0.35)';
-      const hdr = _ps.querySelector('.window-header');
-      if (hdr) {
-        hdr.style.background = '#ffff00';
-        hdr.style.color = '#000';
+    function stylePotionSeller() {
+      const _ps = document.getElementById('win_PotionSeller');
+      if (_ps) {
+        _ps.style.border = '1px solid #ffff00';
+        _ps.style.boxShadow = '0 0 12px rgba(255,255,0,0.35)';
+        const hdr = _ps.querySelector('.window-header');
+        if (hdr) {
+          hdr.style.background = '#ffff00';
+          hdr.style.color = '#000';
+        }
+        const iframe = _ps.querySelector('.window-body iframe');
+        if (iframe) iframe.style.background = '#fff';
       }
-      const iframe = _ps.querySelector('.window-body iframe');
-      if (iframe) iframe.style.background = '#fff';
+    }
+    stylePotionSeller();
+
+    // After TM-OS animation, show Potion Seller window
+    function showPotionSellerWindow() {
+      const minibar = document.getElementById('minibar');
+      const btns = minibar.querySelectorAll('.minibar-btn');
+      for (const btn of btns) {
+        if (btn.textContent === 'Potion Seller') {
+          btn.click();
+          break;
+        }
+      }
+      stylePotionSeller();
     }
 
-    // ---------- Add new window button ----------
-    newWinBtn.addEventListener('click', () => {
-      const url = prompt("Enter a URL or route (e.g. /projects/ or /TM-OS/):", "/projects/");
-      if(!url) return;
-      const safeId = "win_" + Math.random().toString(16).slice(2);
-      createWindow({ id: safeId, title: url, x: 120, y: 120, w: 640, h: 420, url });
+    // Listen for message from TM-OS iframe to trigger Potion Seller popup
+    window.addEventListener('message', (event) => {
+      if (event.data === 'TMOS_ANIMATION_DONE') {
+        showPotionSellerWindow();
+      }
     });
+
+    // ---------- Add new window button ----------
+    // ...existing code...
   });
   </script>
 </body>

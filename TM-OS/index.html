@@ -22,7 +22,8 @@
       justify-content: center;
       padding: 1rem;
       box-sizing: border-box;
-      overflow: hidden; /* important once we have floating windows */
+      /* Allow scrolling in iframe */
+      overflow: auto;
     }
 
     .stack {
@@ -31,6 +32,8 @@
       width: min(900px, 92vw);
       position: relative;
       z-index: 1;
+      flex: 1 1 0;
+      height: 100%;
     }
 
     /* Header frame */
@@ -74,10 +77,12 @@
       border-right: 1px solid var(--green);
       border-bottom: 1px solid var(--green);
       padding: 1.25rem;
-      max-height: 65vh;
+      max-height: 100%;
       box-sizing: border-box;
       overflow-y: auto;
       background: #000;
+      flex: 1 1 0;
+      height: 100%;
     }
 
     #terminal {

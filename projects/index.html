@@ -19,12 +19,17 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
       padding: 1rem;
       box-sizing: border-box;
+      overflow: auto;
     }
 
     .wrap {
       max-width: 900px;
       margin: 0 auto;
       border: 1px solid var(--green);
+      padding: 20px;
+      height: auto;
+      overflow: visible;
+      display: block;
     }
 
     /* Header */
@@ -155,7 +160,7 @@
   cursor:pointer;
   font-weight:bold;
 }
-.win-body{ padding:10px; overflow:auto; flex:1; }
+  .win-body{ padding:10px; overflow:auto; flex:1; }
 .win-body img{ max-width:100%; height:auto; border:1px solid var(--green); display:block; }
 
   </style>
