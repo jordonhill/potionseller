@@ -6,56 +6,71 @@
   <title>House of Mouth</title>
   <link rel="stylesheet" href="https://use.typekit.net/pxo3vzp.css">
   <style>
-        @media (max-width: 640px) {
-          #minibar {
-            flex-direction: column;
-            height: auto;
-            max-height: 40vh;
-            overflow-y: auto;
-            align-items: stretch;
-            gap: 8px;
-            padding: 10px;
-            border: 1px solid var(--green);
-            border-radius: 8px;
-          }
-          .minibar-btn {
-            width: 100%;
-            margin-top: 0;
-            padding: 10px 12px;
-            font-size: 16px;
-          }
-          #windows {
-            inset: 0 0 160px 0;
-          }
-        }
     :root { --green:#00FF00; --bg:#000; }
 
     html, body { height:100%; }
     body{
-      margin:0; background:var(--bg); color:var(--green);
+      margin:0;
+      background:var(--bg);
+      color:var(--green);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
       overflow:hidden;
     }
 
-    #bg{
-      position:fixed; inset:0; padding:60px 18px 18px;
-      white-space:pre-wrap; overflow:auto;
-      color:var(--green); opacity:.35;
-      outline:none;
-      pointer-events:none; /* locked by default */
+    /* ===== OUTER DESKTOP FRAME (WHITE) ===== */
+    #desktop-frame{
+      position:fixed;
+      inset:0;
+      border:8px solid #fff;
+      box-sizing:border-box;
+      background:#000;
+      display:flex;
+      flex-direction:column;
     }
 
+    #desktop-header{
+      height:48px;
+      background:#fff;
+      color:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:bold;
+      font-size:18px;
+      letter-spacing:2px;
+      flex-shrink:0;
+      user-select:none;
+    }
+
+    #desktop-content{
+      flex:1;
+      position:relative;
+      overflow:hidden;
+      background:#000;
+    }
+
+    /* ===== BACKGROUND TEXT ===== */
     #bg{
-      position:fixed; inset:0; padding:60px 18px 18px;
-      white-space:pre-wrap; overflow:auto;
-      color:var(--green); opacity:.35;
+      position:absolute;
+      inset:0;
+      padding:18px;
+      white-space:pre-wrap;
+      overflow:auto;
+      color:var(--green);
+      opacity:.35;
       outline:none;
       pointer-events:none; /* locked by default */
     }
     body.editing #bg{ pointer-events:auto; opacity:.8; }
 
-    /* Window manager layer */
-    #windows{ position:fixed; inset:0; z-index:50; pointer-events:none; }
+    /* ===== WINDOW MANAGER LAYER ===== */
+    #windows{
+      position:absolute;
+      inset:0;
+      z-index:50;
+      pointer-events:none;
+    }
+
     .window{
       pointer-events:auto;
       position:absolute;
@@ -71,79 +86,102 @@
       max-width: 98vw;
       max-height: 90vh;
     }
+
     .window-header{
       background:var(--green); color:#000;
       padding:6px; font-weight:bold; cursor:move; user-select:none;
       display:flex; justify-content:space-between; gap:10px; align-items:center;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
       text-transform: uppercase;
+      -webkit-user-select:none;
+      -moz-user-select:none;
+      -ms-user-select:none;
+      user-select:none;
     }
 
-    #minibar {
-      position: fixed;
-      left: 0; right: 0; bottom: 0;
-      height: 38px;
-      background: #111;
-      border-top: 1px solid var(--green);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 12px;
-      z-index: 10001;
-    }
-    .minibar-btn {
-      background: var(--green);
-      color: #000;
-      border: 1px solid #000;
-      border-radius: 4px 4px 0 0;
-      padding: 4px 12px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 4px;
-      font-size: 15px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
-      text-transform: uppercase;
-    }
     .window-actions{ display:flex; gap:8px; }
     .window-actions button{
       font:inherit; border:1px solid #000; background:#000; color:var(--green);
       padding:2px 8px; cursor:pointer; font-weight:bold;
     }
+
     .window-body{ flex:1; overflow:hidden; min-height:0; }
     .window-body iframe{ width:100%; height:100%; border:0; }
-      .resize-handle {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        width: 18px;
-        height: 18px;
-        background: var(--green);
-        cursor: se-resize;
-        z-index: 10;
-        border-top: 1px solid #000;
-        border-left: 1px solid #000;
-        opacity: 0.7;
+
+    /* ===== MINIBAR (NOW INSIDE DESKTOP FRAME) ===== */
+    #minibar{
+      position:absolute;
+      left:0; right:0; bottom:0;
+      height:38px;
+      background:#111;
+      border-top:1px solid var(--green);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:0 12px;
+      z-index:10001;
+      box-sizing:border-box;
+    }
+
+    .minibar-btn{
+      background:var(--green);
+      color:#000;
+      border:1px solid #000;
+      border-radius:4px 4px 0 0;
+      padding:4px 12px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-top:4px;
+      font-size:15px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      text-transform: uppercase;
+    }
+
+    /* ===== MOBILE: STACK MINIBAR BUTTONS ===== */
+    @media (max-width: 640px) {
+      #minibar{
+        flex-direction: column;
+        height: auto;
+        max-height: 40vh;
+        overflow-y: auto;
+        align-items: stretch;
+        gap: 8px;
+        padding: 10px;
+        border: 1px solid var(--green);
+        border-radius: 8px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
       }
+      .minibar-btn{
+        width: 100%;
+        margin-top: 0;
+        padding: 10px 12px;
+        font-size: 16px;
+      }
+      #windows{
+        inset: 0 0 160px 0;
+      }
+    }
   </style>
 </head>
+
 <body>
+  <div id="desktop-frame">
+    <div id="desktop-header">HoM</div>
 
-  
-
-  <div id="bg" contenteditable="true" spellcheck="false"></div>
-  <div id="windows"></div>
-  <div id="minibar"></div>
+    <div id="desktop-content">
+      <div id="bg" contenteditable="true" spellcheck="false"></div>
+      <div id="windows"></div>
+      <div id="minibar"></div>
+    </div>
+  </div>
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
     const windowsRoot = document.getElementById('windows');
-    // ---------- Window Manager ----------
+
     // ---------- Window Manager ----------
     let z = 100;
-
     function focus(win){ win.style.zIndex = ++z; }
 
     function createWindow({ id, title, x, y, w, h, url }){
@@ -171,6 +209,7 @@
           <iframe src="${url}" title="${title}" style="width:100%;height:100%;border:0;"></iframe>
         </div>
       `;
+
       // Minimize logic
       const minibar = document.getElementById('minibar');
       const minimizeBtn = win.querySelector('[data-minimize]');
@@ -204,7 +243,6 @@
       makeDraggable(win, win.querySelector(`#${id}-header`));
       clamp(win);
 
-
       window.addEventListener('resize', () => clamp(win));
       return win;
     }
@@ -219,7 +257,7 @@
         startY = e.clientY;
         lastX = win.offsetLeft;
         lastY = win.offsetTop;
-        // Prevent text selection while dragging
+
         document.body.style.userSelect = 'none';
         document.body.style.webkitUserSelect = 'none';
         document.body.style.mozUserSelect = 'none';
@@ -236,7 +274,6 @@
         const onUp = () => {
           document.removeEventListener('mousemove', onMove);
           document.removeEventListener('mouseup', onUp);
-          // Restore text selection
           document.body.style.userSelect = '';
           document.body.style.webkitUserSelect = '';
           document.body.style.mozUserSelect = '';
@@ -262,7 +299,6 @@
     }
 
     // ---------- Default windows ----------
-    // Create all windows minimized except TM-OS
     const windowsToCreate = [
       { id: "win_TM-OS", title: "TM-OS", x: 80, y: 80, w: 760, h: 520, url: "/TM-OS/", minimize: false },
       { id: "win_projects", title: "PROJECTS", x: 140, y: 140, w: 620, h: 420, url: "/projects/", minimize: true },
@@ -276,7 +312,6 @@
       const ref = createWindow(win);
       windowRefs[win.id] = ref;
       if (win.minimize && ref) {
-        // Minimize by simulating click on minimize button
         const minBtn = ref.querySelector('[data-minimize]');
         if (minBtn) minBtn.click();
       }
@@ -299,7 +334,6 @@
     }
     stylePotionSeller();
 
-    // After TM-OS animation, show Potion Seller window
     function showPotionSellerWindow() {
       const minibar = document.getElementById('minibar');
       const btns = minibar.querySelectorAll('.minibar-btn');
@@ -312,15 +346,13 @@
       stylePotionSeller();
     }
 
-    // Listen for message from TM-OS iframe to trigger Potion Seller popup
     window.addEventListener('message', (event) => {
       if (event.data === 'TMOS_ANIMATION_DONE') {
         showPotionSellerWindow();
       }
     });
 
-    // ---------- Add new window button ----------
-    // ...existing code...
+    // (New window button removed / not in use)
   });
   </script>
 </body>
